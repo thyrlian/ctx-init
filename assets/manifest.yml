@@ -1,0 +1,126 @@
+# Context Manifest
+# - SSOT content is maintained outside this manifest, under the directory specified by content_root.
+# - This manifest defines only the essentials: structure, tags, and presets.
+#
+# Convention
+# - content_root points to the SSOT content directory.
+# - Source paths are implicit. For each file entry, the source file path is derived as:
+#     "{content_root}/{dir}/{name}"  (dir may be empty)
+# - All relative paths are resolved relative to the directory containing this manifest.
+
+version: 1
+
+root_dir: ".context"
+content_root: "context"
+
+sections:
+  # root directory
+  - dir: ""
+    tags: [core]
+    files:
+      - name: "_INDEX.md"
+        tags: [entry]
+      - name: "ai_protocol.md"
+        tags: [protocol]
+
+  - dir: "product"
+    tags: [product]
+    files:
+      - name: "vision.md"
+        tags: []
+      - name: "roadmap.md"
+        tags: []
+      - name: "features.md"
+        tags: []
+      - name: "glossary.md"
+        tags: []
+
+  - dir: "standards"
+    tags: [standard]
+    files:
+      - name: "project_conventions.md"
+        tags: []
+      - name: "styleguide_LANG.md"
+        tags: [styleguide, example]
+      - name: "naming.md"
+        tags: []
+      - name: "version_control.md"
+        tags: [vcs, git]
+      - name: "stack.md"
+        tags: []
+      - name: "infrastructure.md"
+        tags: [infra, platform]
+      - name: "integrations.md"
+        tags: [integrations, third-party]
+      - name: "security.md"
+        tags: []
+      - name: "compliance.md"
+        tags: []
+      - name: "testing.md"
+        tags: [testing, quality-gates]
+      - name: "observability.md"
+        tags: [observability, logging, monitoring, alerting]
+      - name: "tracking.md"
+        tags: [tracking, analytics, experiments]
+
+  - dir: "architecture"
+    tags: [architecture]
+    files:
+      - name: "system_overview.md"
+        tags: []
+      - name: "data_model.md"
+        tags: [data, model]
+      - name: "data_pipeline.md"
+        tags: [data, pipeline]
+      - name: "api_contracts.md"
+        tags: [api]
+    children:
+      - dir: "adr"
+        tags: [adr]
+        files:
+          - name: "_adr_index.md"
+            tags: [index]
+          - name: "adr_template.md"
+            tags: [template]
+          - name: "adr_001_TITLE.md"
+            tags: [example]
+
+  - dir: "workflows"
+    tags: [workflow]
+    files:
+      - name: "task_template.md"
+        tags: [template, acceptance]
+      - name: "feature_dev.md"
+        tags: [dev, feature]
+      - name: "code_review.md"
+        tags: [review]
+      - name: "test_execution.md"
+        tags: [testing]
+      - name: "continuous_integration.md"
+        tags: [ci]
+      - name: "deployment.md"
+        tags: [release, deployment]
+      - name: "localization.md"
+        tags: [i18n, l10n]
+
+  - dir: "prompts"
+    tags: [prompt]
+    files:
+      - name: "session_init.md"
+        tags: []
+      - name: "review_prompt.md"
+        tags: []
+
+presets:
+  # mode: include -> include files whose effective tags match preset tags
+  # mode: full    -> include all files (no tag filtering)
+  minimal:
+    mode: include
+    tags: [core]
+
+  standard:
+    mode: include
+    tags: [core, product, standard, architecture, workflow]
+
+  full:
+    mode: full
