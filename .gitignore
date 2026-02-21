@@ -1,0 +1,28 @@
+# ===== Go =====
+
+# --- Go build artifacts ---
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+
+# --- Coverage files ---
+coverage.out
+*.coverprofile
+
+# --- Build output directories (optional) ---
+bin/
+dist/
+
+# --- Go workspace (optional, if you don't want to commit it) ---
+go.work
+
+# --- Dependency directory (optional, usually keep commented) ---
+# vendor/
+
+# --- OS / Editor files ---
+.DS_Store
+.idea/
+.vscode/
