@@ -6,7 +6,7 @@
 # - content_root points to the SSOT content directory.
 # - Source paths are implicit. For each file entry, the source file path is derived as:
 #     "{content_root}/{dir}/{name}"  (dir may be empty)
-# - All relative paths are resolved relative to the directory containing this manifest.
+# - Source-relative paths are resolved relative to the directory containing this manifest.
 
 version: 1
 
