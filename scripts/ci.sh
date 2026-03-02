@@ -10,6 +10,9 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 # Mode (e.g.: run/test/build/...)
 MODE="${1:-run}"
 
+# Command to prefetch dependencies
+CMD_PRE="${CMD_PRE:-go mod download}"
+
 # Command to run project
 CMD_RUN="${CMD_RUN:-go run ./cmd/ctx-init}"
 
@@ -18,10 +21,10 @@ CMD_TEST="${CMD_TEST:-go test -v ./...}"
 
 case "${MODE}" in
   run)
-    CMD="${CMD_RUN}"
+    CMD="${CMD_PRE} && ${CMD_RUN}"
     ;;
   test)
-    CMD="${CMD_TEST}"
+    CMD="${CMD_PRE} && ${CMD_TEST}"
     ;;
   *)
     echo "error: unsupported mode: ${MODE}" >&2
@@ -33,6 +36,7 @@ esac
 echo "==> Using Docker image: ${GO_IMAGE}"
 echo "==> Project root: ${ROOT_DIR}"
 echo "==> Mode: ${MODE}"
+echo "==> Command: ${CMD}"
 
 docker run --rm -i \
   -v "${ROOT_DIR}:/app" \
