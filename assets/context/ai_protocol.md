@@ -28,7 +28,9 @@ as a Markdown comment: `<!-- ctx-id: <16-hex-char token> -->`
 
 Start every session by reading `_INDEX.md` in this directory.
 It lists the files available for the current preset, use it as a map, not a reading list.
-Load only what's relevant to the current task, do not load everything upfront.
+Always load files that establish project-wide context or cross-cutting conventions.
+(these may be marked explicitly in `_INDEX.md`, e.g., as `core`). For all others, infer relevance
+from the directory structure and file names and load them on demand.
 
 ---
 
