@@ -24,7 +24,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	p, err := plan.Build(m, opts.ManifestPath, opts.Preset, ".", plan.Options{VerifySources: false})
+	p, err := plan.Build(m, opts.ManifestPath, opts.Preset, opts.Out, plan.Options{VerifySources: false})
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error: %v\n", err)
 		os.Exit(1)
@@ -57,11 +57,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	total := result.Copied + result.Skipped
+	total := result.Generated + result.Copied + result.Skipped
 	if opts.DryRun {
-		fmt.Printf("Done (dry-run): %d total — %d would copy, %d would skip.\n", total, result.Copied, result.Skipped)
+		fmt.Printf("Done (dry-run): %d total — %d would generate, %d would copy, %d would skip.\n", total, result.Generated, result.Copied, result.Skipped)
 	} else {
-		fmt.Printf("Done: %d total — %d copied, %d skipped.\n", total, result.Copied, result.Skipped)
+		fmt.Printf("Done: %d total — %d generated, %d copied, %d skipped.\n", total, result.Generated, result.Copied, result.Skipped)
 	}
 	fmt.Println("------------")
 }

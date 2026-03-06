@@ -12,9 +12,10 @@ type Entry struct {
 }
 
 type Plan struct {
-	Preset  string
-	Mode    string
-	Entries []Entry
+	Preset     string
+	Mode       string
+	Entries    []Entry
+	OutRootAbs string // absolute path to the output root directory
 }
 
 type Options struct {

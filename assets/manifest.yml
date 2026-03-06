@@ -18,8 +18,7 @@ sections:
   - dir: ""
     tags: [core]
     files:
-      - name: "_INDEX.md"
-        tags: [entry]
+      # _INDEX.md is intentionally omitted here, it is generated at runtime, offers a dynamic TOC and serves as an entry point for AI agents
       - name: "ai_protocol.md"
         tags: [protocol]
 

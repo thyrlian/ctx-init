@@ -44,6 +44,7 @@ func parse() (Options, error) {
 
 	manifestPath := flag.String("manifest", defaultManifestPath, manifestHelp)
 	preset := flag.String("preset", DefaultPreset, presetHelp)
+	out := flag.String("out", "", "output root directory where .context/ will be created (required)")
 	dryRun := flag.Bool("dry-run", false, "preview actions without writing files (default: false)")
 	force := flag.Bool("force", false, "overwrite existing destination files (default: false)")
 
@@ -52,6 +53,7 @@ func parse() (Options, error) {
 	return Options{
 		ManifestPath: *manifestPath,
 		Preset:       *preset,
+		Out:          *out,
 		DryRun:       *dryRun,
 		Force:        *force,
 	}, nil
@@ -74,6 +76,10 @@ func validate(opts Options) error {
 
 	if err := validatePreset(opts.Preset); err != nil {
 		return err
+	}
+
+	if opts.Out == "" {
+		return fmt.Errorf("flag -out is required: specify the output root directory")
 	}
 
 	return nil

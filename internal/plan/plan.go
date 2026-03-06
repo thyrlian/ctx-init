@@ -72,9 +72,10 @@ func Build(m *manifest.Manifest, manifestPath string, presetName string, targetD
 	}
 
 	return &Plan{
-		Preset:  presetName,
-		Mode:    preset.Mode,
-		Entries: entries,
+		Preset:     presetName,
+		Mode:       preset.Mode,
+		Entries:    entries,
+		OutRootAbs: outRootAbs,
 	}, nil
 }
 
