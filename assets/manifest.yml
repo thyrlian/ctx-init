@@ -45,7 +45,7 @@ sections:
         tags: []
       - name: "version_control.md"
         tags: [vcs, git]
-      - name: "stack.md"
+      - name: "tech_stack.md"
         tags: []
       - name: "infrastructure.md"
         tags: [infra, platform]
@@ -59,7 +59,7 @@ sections:
         tags: [testing, quality-gates]
       - name: "observability.md"
         tags: [observability, logging, monitoring, alerting]
-      - name: "tracking.md"
+      - name: "analytics.md"
         tags: [tracking, analytics, experiments]
 
   - dir: "architecture"
@@ -77,7 +77,7 @@ sections:
       - dir: "adr"
         tags: [adr]
         files:
-          - name: "_adr_index.md"
+          - name: "adr_index.md"
             tags: [index]
           - name: "adr_template.md"
             tags: [template]
