@@ -26,13 +26,13 @@ sections:
     tags: [product]
     files:
       - name: "vision.md"
-        tags: []
+        tags: [global]
       - name: "roadmap.md"
         tags: []
       - name: "features.md"
         tags: []
       - name: "glossary.md"
-        tags: []
+        tags: [global]
 
   - dir: "standards"
     tags: [standard]
@@ -66,7 +66,7 @@ sections:
     tags: [architecture]
     files:
       - name: "system_overview.md"
-        tags: []
+        tags: [global]
       - name: "data_model.md"
         tags: [data, model]
       - name: "data_pipeline.md"
