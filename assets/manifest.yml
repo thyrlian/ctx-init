@@ -35,10 +35,10 @@ sections:
         tags: [global]
 
   - dir: "standards"
-    tags: [standard]
+    tags: [standards]
     files:
       - name: "project_conventions.md"
-        tags: []
+        tags: [global]
       - name: "styleguide_LANG.md"
         tags: [styleguide, example]
       - name: "naming.md"
@@ -50,17 +50,17 @@ sections:
       - name: "infrastructure.md"
         tags: [infra, platform]
       - name: "integrations.md"
-        tags: [integrations, third-party]
+        tags: [third-party]
       - name: "security.md"
         tags: []
       - name: "compliance.md"
         tags: []
       - name: "testing.md"
-        tags: [testing, quality-gates]
+        tags: []
       - name: "observability.md"
-        tags: [observability, logging, monitoring, alerting]
+        tags: [logging, monitoring, alerting]
       - name: "analytics.md"
-        tags: [tracking, analytics, experiments]
+        tags: [tracking, experimentation]
 
   - dir: "architecture"
     tags: [architecture]
@@ -78,7 +78,7 @@ sections:
         tags: [adr]
         files:
           - name: "adr_index.md"
-            tags: [index]
+            tags: []
           - name: "adr_template.md"
             tags: [template]
           - name: "adr_001_TITLE.md"
@@ -88,7 +88,7 @@ sections:
     tags: [workflow]
     files:
       - name: "task_template.md"
-        tags: [template, acceptance]
+        tags: [task, template]
       - name: "feature_dev.md"
         tags: [dev, feature]
       - name: "code_review.md"
@@ -98,7 +98,7 @@ sections:
       - name: "continuous_integration.md"
         tags: [ci]
       - name: "deployment.md"
-        tags: [release, deployment]
+        tags: [release]
       - name: "localization.md"
         tags: [i18n, l10n]
 
@@ -119,7 +119,7 @@ presets:
 
   standard:
     mode: include
-    tags: [core, product, standard, architecture, workflow]
+    tags: [core, product, standards, architecture, workflow]
 
   full:
     mode: full
