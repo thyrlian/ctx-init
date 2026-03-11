@@ -27,10 +27,12 @@ as a Markdown comment: `<!-- ctx-id: <16-hex-char token> -->`
 ## Context Navigation
 
 Start every session by reading `_INDEX.md` in this directory.
-It lists the files available for the current preset, use it as a map, not a reading list.
-Always load files that establish project-wide context or cross-cutting conventions.
-(these may be marked explicitly in `_INDEX.md`, e.g., as `core`). For all others, infer relevance
-from the directory structure and file names and load them on demand.
+It lists the files available for the current preset — use it as a map, not a reading list.
+Always load files marked `core` or `global`:
+* `core` files define mandatory rules.
+* `global` files provide project-wide context relevant to every task.
+For all others, use ancestor directory names within `.context/`, file name, and tags
+together to infer relevance and load them on demand.
 
 ---
 
