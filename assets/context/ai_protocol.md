@@ -31,6 +31,7 @@ It lists the files available for the current preset — use it as a map, not a r
 Always load files marked `core` or `global`:
 * `core` files define mandatory rules.
 * `global` files provide project-wide context relevant to every task.
+
 For all others, use ancestor directory names within `.context/`, file name, and tags
 together to infer relevance and load them on demand.
 
