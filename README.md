@@ -6,6 +6,56 @@ AI coding assistants are only as good as the context they have about your projec
 
 Beyond context management, the bundled templates also serve as a lightweight design blueprint, prompting you to think through every dimension of your project from the start: architecture, product, conventions, workflows, and more.
 
+## Design Philosophy
+
+### Bootstrap, Not Babysit
+
+`ctx-init` is a bootstrapper, not a daemon.  Run it once to scaffold the `.context/` directory and its context files in your project, everything after is yours.  No re-runs required, though following the conventions is expected.
+
+### Convention + Configuration
+
+The system works through the following complementary mechanisms:
+
+- [**`ai_protocol.md`**](assets/context/ai_protocol.md): the rulebook.  Defines how AI agents must behave, what to load, and how to navigate the context system.  Always read first.
+- [**`_INDEX.md`**](assets/context/_INDEX.md): the map.  Auto-generated on every run, it lists every file in the selected preset with its tags.  AI agents use it to navigate what's available and decide relevance based on tags.
+- **Frontmatter**: the self-contained metadata.  Key files carry a `ctx:` YAML block at the top of the file, readable by humans, AI, and scripts alike:
+
+  ```yaml
+  ---
+  ctx:
+    tags: [architecture, adr, gateway]
+  ---
+  ```
+
+Together they form a single source of truth that requires no external tooling to interpret.
+
+### Gateway Files
+
+Some files in `.context/` are **entry points**, not content.  Rather than containing information directly, they carry `points_to` (explicit paths) and/or `include` (glob patterns) in their frontmatter, directing AI agents to related files that live elsewhere in the project, keeping `.context/` lean while the full project remains navigable.
+
+  ```yaml
+  ---
+  ctx:
+    points_to:
+      - docs/adr/
+      - docs/architecture/
+    include:
+      - "**/ADR-*.md"
+      - "**/architecture/*.md"
+  ---
+  ```
+
+Gateway files are signaled by the `gateway` tag in `_INDEX.md` or in their frontmatter.  Any file with `points_to` or `include` fields is treated as a gateway regardless of tag.
+
+### Progressive Loading
+
+Not every file is needed for every task.  Tags in `_INDEX.md` signal load priority:
+
+- `core` / `global`: always load
+- everything else: load on demand, guided by path, filename, and tags
+
+This keeps token usage efficient and responses focused.
+
 ## How It Works
 
 1. A [`manifest.yml`](assets/manifest.yml) defines which context files to include and how to organize them
