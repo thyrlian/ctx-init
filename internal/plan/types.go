@@ -9,6 +9,9 @@ type Entry struct {
 
 	// Effective tags = section tags (including parents) + file tags (deduped)
 	Tags []string
+
+	// Gateway indicates this file points to external content via frontmatter (points_to / include)
+	Gateway bool
 }
 
 type Plan struct {

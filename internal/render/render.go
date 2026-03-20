@@ -247,6 +247,9 @@ func buildIndexContent(p *plan.Plan) (string, error) {
 		for _, t := range e.Tags {
 			tagStrs = append(tagStrs, "`"+t+"`")
 		}
+		if e.Gateway {
+			tagStrs = append(tagStrs, "`gateway`")
+		}
 
 		if len(tagStrs) > 0 {
 			sb.WriteString(fmt.Sprintf("- [%s](%s) %s\n", relSlash, relSlash, strings.Join(tagStrs, ", ")))

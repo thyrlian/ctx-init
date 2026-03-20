@@ -39,8 +39,9 @@ sections:
     files:
       - name: "project_conventions.md"
         tags: [global]
-      - name: "styleguide_LANG.md"
-        tags: [styleguide, example]
+      - name: "styleguide.md"
+        tags: [styleguide]
+        gateway: true
       - name: "naming.md"
         tags: []
       - name: "version_control.md"
@@ -79,10 +80,9 @@ sections:
         files:
           - name: "adr_index.md"
             tags: []
+            gateway: true
           - name: "adr_template.md"
             tags: [template]
-          - name: "adr_001_TITLE.md"
-            tags: [example]
 
   - dir: "workflows"
     tags: [workflow]

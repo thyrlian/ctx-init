@@ -16,8 +16,9 @@ type Section struct {
 }
 
 type File struct {
-	Name string   `yaml:"name"`
-	Tags []string `yaml:"tags"`
+	Name    string   `yaml:"name"`
+	Tags    []string `yaml:"tags"`
+	Gateway bool     `yaml:"gateway"`
 }
 
 type Preset struct {

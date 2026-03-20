@@ -106,9 +106,10 @@ func buildEntriesForSection(contentRootAbs, outRootAbs, parentDir string, parent
 		dst := filepath.Clean(filepath.Join(outRootAbs, filepath.FromSlash(effectiveDir), name))
 
 		entries = append(entries, Entry{
-			Src:  src,
-			Dst:  dst,
-			Tags: mergeTags(secTags, f.Tags),
+			Src:     src,
+			Dst:     dst,
+			Tags:    mergeTags(secTags, f.Tags),
+			Gateway: f.Gateway,
 		})
 	}
 
