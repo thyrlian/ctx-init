@@ -20,7 +20,7 @@ sections:
     files:
       # _INDEX.md is intentionally omitted here, it is generated at runtime, offers a dynamic TOC and serves as an entry point for AI agents
       - name: "ai_protocol.md"
-        tags: [protocol]
+        tags: []
 
   - dir: "product"
     tags: [product]
@@ -40,7 +40,7 @@ sections:
       - name: "project_conventions.md"
         tags: [global]
       - name: "styleguide.md"
-        tags: [styleguide]
+        tags: []
         gateway: true
       - name: "naming.md"
         tags: []
@@ -69,17 +69,17 @@ sections:
       - name: "system_overview.md"
         tags: [global]
       - name: "data_model.md"
-        tags: [data, model]
+        tags: []
       - name: "data_pipeline.md"
-        tags: [data, pipeline]
+        tags: []
       - name: "api_contracts.md"
-        tags: [api]
+        tags: []
     children:
       - dir: "adr"
         tags: [adr]
         files:
           - name: "adr_index.md"
-            tags: []
+            tags: [decision]
             gateway: true
           - name: "adr_template.md"
             tags: [template]
@@ -88,13 +88,13 @@ sections:
     tags: [workflow]
     files:
       - name: "task_template.md"
-        tags: [task, template]
+        tags: [template]
       - name: "feature_dev.md"
-        tags: [dev, feature]
+        tags: []
       - name: "code_review.md"
-        tags: [review]
+        tags: []
       - name: "test_execution.md"
-        tags: [testing]
+        tags: []
       - name: "continuous_integration.md"
         tags: [ci]
       - name: "deployment.md"
