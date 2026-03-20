@@ -64,6 +64,9 @@ ctx:
   Open them and follow those fields — do not treat them as self-contained content.
 - If `points_to` or `include` entries are still placeholder comments, skip them and
   note that the user has not configured this gateway yet.
+- For files not listed in `_INDEX.md`: any file whose frontmatter contains at least
+  one non-placeholder entry in `points_to` or `include` is treated as a gateway.
+  A `gateway` tag without either field has no effect.
 
 ---
 
