@@ -37,6 +37,36 @@ together to infer relevance and load them on demand.
 
 ---
 
+## File Frontmatter
+
+Some files carry a `ctx:` YAML frontmatter block at the top. It is the authoritative
+metadata for that file and takes the following format:
+
+```yaml
+---
+ctx:
+  tags: [decision, gateway]             # load-priority tags (mirrors _INDEX.md)
+  points_to:                            # explicit paths to follow (dirs or files)
+    - docs/adr/
+  include:                              # glob patterns for scattered files
+    - "**/ADR-*.md"
+---
+```
+
+**Rules for AI systems:**
+
+- `tags` — same semantics as `_INDEX.md`; use for relevance decisions.
+- `points_to` — treat each entry as a path relative to the project root. Read the
+  target directory or file as part of this file's context.
+- `include` — treat each entry as a glob pattern; scan the project for matches and
+  read them as part of this file's context.
+- Files tagged `gateway` in `_INDEX.md` always carry `points_to` and/or `include`.
+  Open them and follow those fields — do not treat them as self-contained content.
+- If `points_to` or `include` entries are still placeholder comments, skip them and
+  note that the user has not configured this gateway yet.
+
+---
+
 ## Collaboration Rules
 
 - Prefer editing existing files over creating new ones.
