@@ -61,7 +61,7 @@ This keeps token usage efficient and responses focused.
 1. A [`manifest.yml`](assets/manifest.yml) defines which context files to include and how to organize them
 2. `ctx-init` copies the files into `.context/` in your target project
 3. A [`_INDEX.md`](assets/context/_INDEX.md) is generated as an entry point for AI agents
-4. Each `.md` file receives a unique `ctx-id` token, as a proof-of-read that agents must include in responses to confirm they actually loaded the file
+4. Each copied `.md` file receives a unique `ctx-id` token, as a proof-of-read that agents must include in responses to confirm they actually loaded the file
 
 ## Quick Start
 

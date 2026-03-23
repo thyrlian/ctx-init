@@ -12,7 +12,8 @@
 
 ## Files
 
-- [ai_protocol.md](ai_protocol.md)
-- [product/vision.md](product/vision.md)
-- [product/roadmap.md](product/roadmap.md)
+- [ai_protocol.md](ai_protocol.md) `core`
+- [product/glossary.md](product/glossary.md) `product`, `global`
+- [product/roadmap.md](product/roadmap.md) `product`
+- [product/vision.md](product/vision.md) `product`, `global`
 - ...
