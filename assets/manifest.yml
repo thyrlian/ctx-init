@@ -102,14 +102,6 @@ sections:
       - name: "localization.md"
         tags: [i18n, l10n]
 
-  - dir: "prompts"
-    tags: [prompt]
-    files:
-      - name: "session_init.md"
-        tags: []
-      - name: "review_prompt.md"
-        tags: []
-
 presets:
   # mode: include -> include files whose effective tags match preset tags
   # mode: full    -> include all files (no tag filtering)

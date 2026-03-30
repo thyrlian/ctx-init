@@ -1,6 +1,10 @@
 ---
 ctx:
   tags: [gateway]
+  purpose: Point AI systems to language, framework, or repository style guides maintained elsewhere in the project.
+  use_when:
+    - formatting or refactoring code in a language-specific area
+    - locating the authoritative style rules for a code area
   points_to:
     - # e.g. docs/style/swift.md
     - # e.g. docs/style/kotlin.md
