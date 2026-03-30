@@ -77,7 +77,12 @@ go run ./cmd/ctx-init/ -out /path/to/your/project -preset minimal
 
 # Overwrite existing context files
 go run ./cmd/ctx-init/ -out /path/to/your/project -force
+
+# Use a custom manifest file
+go run ./cmd/ctx-init/ -out /path/to/your/project -manifest path/to/manifest.yml
 ```
+
+When using a custom manifest file, any relative paths inside that manifest are resolved relative to the manifest file's location, not the current working directory.
 
 ## Flags
 
@@ -93,9 +98,9 @@ go run ./cmd/ctx-init/ -out /path/to/your/project -force
 
 | Preset | Description |
 |--------|-------------|
-| `minimal` | Core files only — just `ai_protocol.md` |
+| `minimal` | Core files only, just `ai_protocol.md` |
 | `standard` | Full working set: product, standards, architecture, workflows |
-| `full` | Everything, including prompts and ADR examples |
+| `full` | Everything defined in the manifest, including ADR templates and optional sections |
 
 ## Output Structure
 
@@ -133,11 +138,11 @@ Regenerated on every run.  Lists all files in the active preset with their tags,
 ```
 
 Tags signal load priority:
-- `core` — must always load (defines mandatory rules)
-- `global` — always-load context relevant to every task
-- everything else — load on demand based on the task at hand
+- `core` -> must always load (defines mandatory rules)
+- `global` -> always-load context relevant to every task
+- everything else -> load on demand based on the task at hand
 
-### `ctx-id` — Proof of Read
+### `ctx-id` -> Proof of Read
 
 Every `.md` file gets a unique token appended on copy:
 
