@@ -11,6 +11,7 @@ import (
 const (
 	AdapterClaude = "claude"
 	AdapterCodex  = "codex"
+	AdapterGemini = "gemini"
 )
 
 type generator func(projectRoot string, opt Options) (Result, error)
@@ -20,11 +21,13 @@ const aiProtocolPathPlaceholder = "{{AI_PROTOCOL_PATH}}"
 var supportedAdapters = []string{
 	AdapterClaude,
 	AdapterCodex,
+	AdapterGemini,
 }
 
 var generators = map[string]generator{
 	AdapterClaude: generateClaude,
 	AdapterCodex:  generateCodex,
+	AdapterGemini: generateGemini,
 }
 
 func SupportedText() string {

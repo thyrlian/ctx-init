@@ -9,8 +9,8 @@ import (
 
 func TestSupportedText(t *testing.T) {
 	got := SupportedText()
-	if !strings.Contains(got, AdapterClaude) || !strings.Contains(got, AdapterCodex) {
-		t.Fatalf("SupportedText() = %q; want both %q and %q", got, AdapterClaude, AdapterCodex)
+	if !strings.Contains(got, AdapterClaude) || !strings.Contains(got, AdapterCodex) || !strings.Contains(got, AdapterGemini) {
+		t.Fatalf("SupportedText() = %q; want %q, %q, and %q", got, AdapterClaude, AdapterCodex, AdapterGemini)
 	}
 	for _, part := range strings.Split(got, ", ") {
 		if strings.TrimSpace(part) == "" {
@@ -27,8 +27,10 @@ func TestValidate(t *testing.T) {
 		{name: "", wantErr: false},
 		{name: AdapterClaude, wantErr: false},
 		{name: AdapterCodex, wantErr: false},
+		{name: AdapterGemini, wantErr: false},
 		{name: "CLAUDE", wantErr: true},
 		{name: "CODEX", wantErr: true},
+		{name: "GEMINI", wantErr: true},
 	}
 
 	for _, tc := range tests {

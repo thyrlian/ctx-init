@@ -104,7 +104,7 @@ When using a custom manifest file, any relative paths inside that manifest are r
 | `-dry-run` | `false` | Preview actions without writing any files |
 | `-force` | `false` | Overwrite existing generated files; for adapters, only replaces existing `*.ctx-init.md` fallback files |
 | `-manifest` | `assets/manifest.yml` | Path to the context manifest file |
-| `-adapter` | *(optional)* | Generate an adapter entrypoint, currently: `claude`, `codex` |
+| `-adapter` | *(optional)* | Generate an adapter entrypoint, currently: `claude`, `codex`, `gemini` |
 
 ## Presets
 
@@ -139,6 +139,14 @@ The `codex` adapter checks [`./AGENTS.md`] and generates [`./AGENTS.md`](./asset
 **TODO**: Support scoped `AGENTS.md` generation for subdirectories in a future adapter version.
 
 [Official Reference](https://developers.openai.com/codex/guides/agents-md)
+
+### Google Antigravity
+
+The `gemini` adapter checks [`./.agents/rules/GEMINI.md`] and generates [`./.agents/rules/GEMINI.md`](./assets/adapters/GEMINI.md) if it does not exist.
+
+**TODO**: Support richer Antigravity rule activation and workflow generation in a future adapter version.
+
+[Official Reference](https://antigravity.google/docs/rules-workflows)
 
 ## Output Structure
 
