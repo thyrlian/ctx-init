@@ -5,6 +5,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/thyrlian/ctx-init/internal/adapter"
 	"github.com/thyrlian/ctx-init/internal/cli"
 	"github.com/thyrlian/ctx-init/internal/manifest"
 	"github.com/thyrlian/ctx-init/internal/plan"
@@ -34,6 +35,9 @@ func main() {
 	fmt.Println("=== 🛠️ CTX-INIT 🛠️ ===")
 	fmt.Printf("Manifest: %s\n", opts.ManifestPath)
 	fmt.Printf("Preset:   %s\n", opts.Preset)
+	if opts.Adapter != "" {
+		fmt.Printf("Adapter:  %s\n", opts.Adapter)
+	}
 	fmt.Printf("version:      %d\n", m.Version)
 	fmt.Printf("root_dir:     %s\n", m.RootDir)
 	fmt.Printf("content_root: %s\n", m.ContentRoot)
@@ -55,6 +59,18 @@ func main() {
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error: %v\n", err)
 		os.Exit(1)
+	}
+
+	if opts.Adapter != "" {
+		fmt.Println()
+		fmt.Println("Adapter:")
+		if _, err := adapter.Generate(opts.Adapter, opts.Out, adapter.Options{
+			DryRun: opts.DryRun,
+			Force:  opts.Force,
+		}); err != nil {
+			fmt.Fprintf(os.Stderr, "error: %v\n", err)
+			os.Exit(1)
+		}
 	}
 
 	total := result.Generated + result.Copied + result.Skipped

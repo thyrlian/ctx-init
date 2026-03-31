@@ -41,12 +41,17 @@ func parse() (Options, error) {
 		supportedPresetsText(),
 		DefaultPreset,
 	)
+	adapterHelp := fmt.Sprintf(
+		"Optional adapter to generate: %s",
+		supportedAdaptersText(),
+	)
 
 	manifestPath := flag.String("manifest", defaultManifestPath, manifestHelp)
 	preset := flag.String("preset", DefaultPreset, presetHelp)
+	adapter := flag.String("adapter", DefaultAdapter, adapterHelp)
 	out := flag.String("out", "", "output root directory where .context/ will be created (required)")
 	dryRun := flag.Bool("dry-run", false, "preview actions without writing files (default: false)")
-	force := flag.Bool("force", false, "overwrite existing destination files (default: false)")
+	force := flag.Bool("force", false, "overwrite existing generated files; for adapters, this only replaces existing *.ctx-init.md fallback files (default: false)")
 
 	flag.Parse()
 
@@ -54,6 +59,7 @@ func parse() (Options, error) {
 		ManifestPath: *manifestPath,
 		Preset:       *preset,
 		Out:          *out,
+		Adapter:      *adapter,
 		DryRun:       *dryRun,
 		Force:        *force,
 	}, nil
@@ -75,6 +81,10 @@ func validate(opts Options) error {
 	}
 
 	if err := validatePreset(opts.Preset); err != nil {
+		return err
+	}
+
+	if err := validateAdapter(opts.Adapter); err != nil {
 		return err
 	}
 

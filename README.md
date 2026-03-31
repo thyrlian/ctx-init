@@ -75,11 +75,14 @@ go run ./cmd/ctx-init/ -out /path/to/your/project -dry-run
 # Use a different preset
 go run ./cmd/ctx-init/ -out /path/to/your/project -preset minimal
 
-# Overwrite existing context files
+# Overwrite existing generated context files
 go run ./cmd/ctx-init/ -out /path/to/your/project -force
 
 # Use a custom manifest file
 go run ./cmd/ctx-init/ -out /path/to/your/project -manifest path/to/manifest.yml
+
+# Generate a specific tool adapter entrypoint (e.g.: Claude Code)
+go run ./cmd/ctx-init/ -out /path/to/your/project -adapter claude
 ```
 
 When using a custom manifest file, any relative paths inside that manifest are resolved relative to the manifest file's location, not the current working directory.
@@ -91,8 +94,9 @@ When using a custom manifest file, any relative paths inside that manifest are r
 | `-out` | *(required)* | Target project directory |
 | `-preset` | `standard` | Context preset: `minimal`, `standard`, `full` |
 | `-dry-run` | `false` | Preview actions without writing any files |
-| `-force` | `false` | Overwrite existing destination files |
+| `-force` | `false` | Overwrite existing generated files; for adapters, only replaces existing `*.ctx-init.md` fallback files |
 | `-manifest` | `assets/manifest.yml` | Path to the context manifest file |
+| `-adapter` | *(optional)* | Generate an adapter entrypoint, currently: `claude` |
 
 ## Presets
 
@@ -101,6 +105,19 @@ When using a custom manifest file, any relative paths inside that manifest are r
 | `minimal` | Core files only, just `ai_protocol.md` |
 | `standard` | Full working set: product, standards, architecture, workflows |
 | `full` | Everything defined in the manifest, including ADR templates and optional sections |
+
+## Adapters
+
+Adapters generate tool-specific entrypoints that bridge a tool to the `.context/` system.
+
+### Claude Code
+
+Use the Claude adapter to generate a root-level `CLAUDE.md` that points Claude Code at `.context/ai_protocol.md`. Claude slash-command generation is intentionally left for a future adapter version.
+
+Behavior:
+- If `CLAUDE.md` does not exist, `ctx-init` generates it in the project root.
+- If `CLAUDE.md` already exists, `ctx-init` generates `CLAUDE.ctx-init.md` instead and tells you to append or merge that content manually.
+- `-force` does not overwrite an existing `CLAUDE.md`; it only allows `ctx-init` to replace an existing `CLAUDE.ctx-init.md` fallback file.
 
 ## Output Structure
 
