@@ -104,7 +104,7 @@ When using a custom manifest file, any relative paths inside that manifest are r
 | `-dry-run` | `false` | Preview actions without writing any files |
 | `-force` | `false` | Overwrite existing generated files; for adapters, only replaces existing `*.ctx-init.md` fallback files |
 | `-manifest` | `assets/manifest.yml` | Path to the context manifest file |
-| `-adapter` | *(optional)* | Generate an adapter entrypoint, currently: `claude` |
+| `-adapter` | *(optional)* | Generate an adapter entrypoint, currently: `claude`, `codex` |
 
 ## Presets
 
@@ -118,14 +118,18 @@ When using a custom manifest file, any relative paths inside that manifest are r
 
 Adapters generate tool-specific entrypoints that bridge a tool to the `.context/` system.
 
+Common behavior:
+- If the tool's primary entry file does not exist, `ctx-init` generates it in the project root.
+- If the primary file already exists, `ctx-init` generates a `*.ctx-init.md` fallback file instead and tells you to append or merge that content manually.
+- `-force` does not overwrite an existing primary tool file; it only allows `ctx-init` to replace an existing `*.ctx-init.md` fallback file.
+
 ### Claude Code
 
-Use the Claude adapter to generate a root-level `CLAUDE.md` that points Claude Code at `.context/ai_protocol.md`. Claude slash-command generation is intentionally left for a future adapter version.
+The `claude` adapter generates `CLAUDE.md`, which points Claude Code at `.context/ai_protocol.md`. Claude slash-command generation is intentionally left for a future adapter version.
 
-Behavior:
-- If `CLAUDE.md` does not exist, `ctx-init` generates it in the project root.
-- If `CLAUDE.md` already exists, `ctx-init` generates `CLAUDE.ctx-init.md` instead and tells you to append or merge that content manually.
-- `-force` does not overwrite an existing `CLAUDE.md`; it only allows `ctx-init` to replace an existing `CLAUDE.ctx-init.md` fallback file.
+### OpenAI Codex
+
+The `codex` adapter generates `AGENTS.md`, which points OpenAI Codex at `.context/ai_protocol.md`. Scoped `AGENTS.md` generation for subdirectories is intentionally left for a future adapter version.
 
 ## Output Structure
 

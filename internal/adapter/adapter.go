@@ -10,16 +10,19 @@ import (
 
 const (
 	AdapterClaude = "claude"
+	AdapterCodex  = "codex"
 )
 
 type generator func(projectRoot string, opt Options) (Result, error)
 
 var supportedAdapters = []string{
 	AdapterClaude,
+	AdapterCodex,
 }
 
 var generators = map[string]generator{
 	AdapterClaude: generateClaude,
+	AdapterCodex:  generateCodex,
 }
 
 func SupportedText() string {
