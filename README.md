@@ -126,7 +126,7 @@ Common behavior:
 
 ### Claude Code
 
-The `claude` adapter checks [`./.claude/CLAUDE.md`, `./CLAUDE.md`] and generates `./.claude/CLAUDE.md` if neither file exists.
+The `claude` adapter checks [`./.claude/CLAUDE.md`, `./CLAUDE.md`] and generates [`./.claude/CLAUDE.md`](./assets/adapters/CLAUDE.md) if neither file exists.
 
 **TODO**: Claude slash-command generation is intentionally left for a future adapter version.
 
@@ -134,7 +134,7 @@ The `claude` adapter checks [`./.claude/CLAUDE.md`, `./CLAUDE.md`] and generates
 
 ### OpenAI Codex
 
-The `codex` adapter checks [`./AGENTS.md`] and generates `./AGENTS.md` if it does not exist.
+The `codex` adapter checks [`./AGENTS.md`] and generates [`./AGENTS.md`](./assets/adapters/AGENTS.md) if it does not exist.
 
 **TODO**: Support scoped `AGENTS.md` generation for subdirectories in a future adapter version.
 
