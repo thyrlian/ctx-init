@@ -97,6 +97,21 @@ func projectRelativePath(name string) (string, error) {
 	return clean, nil
 }
 
+func printAdapterNote(w io.Writer, action Action, primaryPath, targetPath string) {
+	fmt.Fprintf(w, "  note:\n")
+	fmt.Fprintf(w, "    existing:  %s\n", primaryPath)
+	switch action {
+	case ActionGenerated, ActionDryRunGenerate:
+		fmt.Fprintf(w, "    generated: %s\n", targetPath)
+		fmt.Fprintf(w, "    next:      append or merge the generated file into %s manually.\n", primaryPath)
+	case ActionSkipped, ActionDryRunSkip:
+		fmt.Fprintf(w, "    fallback:  %s\n", targetPath)
+		fmt.Fprintf(w, "    next:      reuse that fallback file or rerun with -force to replace it before merging into %s.\n", primaryPath)
+	default:
+		fmt.Fprintf(w, "    target:    %s\n", targetPath)
+	}
+}
+
 // generateAdapterFile applies the standard ctx-init adapter behavior for a
 // single output file:
 //   - write the primary file when it does not exist
@@ -160,12 +175,18 @@ func generateAdapterFile(projectRoot string, content []byte, primaryName string,
 
 	// Dry-run reports the file that would be written without touching disk.
 	if opt.DryRun {
-		fmt.Fprintf(out, "  [dry-run/generate] %s\n", targetPath)
-		if message != "" {
-			fmt.Fprintf(out, "  note: %s\n", message)
+		action := ActionDryRunGenerate
+		if targetExists && !opt.Force {
+			action = ActionDryRunSkip
+		}
+		fmt.Fprintf(out, "  [%s] %s\n", action, targetPath)
+		if usedFallback {
+			printAdapterNote(out, action, primaryPath, targetPath)
 		}
 		return Result{
+			Action:        action,
 			GeneratedPath: targetPath,
+			Skipped:       action == ActionDryRunSkip,
 			UsedFallback:  usedFallback,
 			Message:       message,
 		}, nil
@@ -175,11 +196,12 @@ func generateAdapterFile(projectRoot string, content []byte, primaryName string,
 	// means force can replace a previously generated fallback file, but it still
 	// does not replace the user's primary tool entrypoint.
 	if targetExists && !opt.Force {
-		fmt.Fprintf(out, "  [skipped] %s\n", targetPath)
-		if message != "" {
-			fmt.Fprintf(out, "  note: %s\n", message)
+		fmt.Fprintf(out, "  [%s] %s\n", ActionSkipped, targetPath)
+		if usedFallback {
+			printAdapterNote(out, ActionSkipped, primaryPath, targetPath)
 		}
 		return Result{
+			Action:        ActionSkipped,
 			GeneratedPath: targetPath,
 			Skipped:       true,
 			UsedFallback:  usedFallback,
@@ -196,12 +218,13 @@ func generateAdapterFile(projectRoot string, content []byte, primaryName string,
 		return Result{}, fmt.Errorf("write adapter %s: %w", targetPath, err)
 	}
 
-	fmt.Fprintf(out, "  [generated] %s\n", targetPath)
-	if message != "" {
-		fmt.Fprintf(out, "  note: %s\n", message)
+	fmt.Fprintf(out, "  [%s] %s\n", ActionGenerated, targetPath)
+	if usedFallback {
+		printAdapterNote(out, ActionGenerated, primaryPath, targetPath)
 	}
 
 	return Result{
+		Action:        ActionGenerated,
 		GeneratedPath: targetPath,
 		UsedFallback:  usedFallback,
 		Message:       message,

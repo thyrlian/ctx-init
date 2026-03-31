@@ -114,6 +114,12 @@ func TestGenerateAdapterFileSkipsWhenTargetExistsWithoutForce(t *testing.T) {
 	if !res.Skipped {
 		t.Fatal("Skipped = false; want true")
 	}
+	if strings.Contains(out.String(), "generated:") {
+		t.Fatalf("output = %q; want skipped note without generated label", out.String())
+	}
+	if !strings.Contains(out.String(), "fallback:") {
+		t.Fatalf("output = %q; want fallback label in skipped note", out.String())
+	}
 	assertFileContent(t, filepath.Join(root, "PRIMARY.ctx-init.md"), "existing-fallback")
 }
 
@@ -178,6 +184,34 @@ func TestGenerateAdapterFileDryRunUsesFallbackPathWhenPrimaryExists(t *testing.T
 	}
 }
 
+func TestGenerateAdapterFileDryRunSkipsWhenFallbackExistsWithoutForce(t *testing.T) {
+	root := t.TempDir()
+	writeAdapterFile(t, filepath.Join(root, "PRIMARY.md"), "existing-primary")
+	writeAdapterFile(t, filepath.Join(root, "PRIMARY.ctx-init.md"), "existing-fallback")
+	var out strings.Builder
+
+	res, err := generateAdapterFile(root, []byte("hello"), "PRIMARY.md", "PRIMARY.ctx-init.md", Options{
+		DryRun: true,
+		Writer: &out,
+	})
+	if err != nil {
+		t.Fatalf("generateAdapterFile returned error: %v", err)
+	}
+	if res.Action != ActionDryRunSkip {
+		t.Fatalf("Action = %q; want %q", res.Action, ActionDryRunSkip)
+	}
+	if !res.Skipped {
+		t.Fatal("Skipped = false; want true")
+	}
+	if !strings.Contains(out.String(), "[dry-run/skip]") {
+		t.Fatalf("output = %q; want dry-run/skip status", out.String())
+	}
+	if strings.Contains(out.String(), "generated:") {
+		t.Fatalf("output = %q; want dry-run skipped note without generated label", out.String())
+	}
+	assertFileContent(t, filepath.Join(root, "PRIMARY.ctx-init.md"), "existing-fallback")
+}
+
 func TestGenerateAdapterFileDryRunWithForceUsesFallbackPath(t *testing.T) {
 	root := t.TempDir()
 	writeAdapterFile(t, filepath.Join(root, "PRIMARY.md"), "existing-primary")
@@ -190,6 +224,9 @@ func TestGenerateAdapterFileDryRunWithForceUsesFallbackPath(t *testing.T) {
 	})
 	if err != nil {
 		t.Fatalf("generateAdapterFile returned error: %v", err)
+	}
+	if res.Action != ActionDryRunGenerate {
+		t.Fatalf("Action = %q; want %q", res.Action, ActionDryRunGenerate)
 	}
 	if res.GeneratedPath != filepath.Join(root, "PRIMARY.ctx-init.md") {
 		t.Fatalf("GeneratedPath = %q; want fallback path", res.GeneratedPath)

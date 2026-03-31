@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"sort"
 	"strings"
 
 	"github.com/thyrlian/ctx-init/internal/adapter"
@@ -47,7 +48,7 @@ func main() {
 	fmt.Printf("Plan:         %d entries (mode=%s)\n", len(p.Entries), p.Mode)
 	for i, e := range p.Entries {
 		fmt.Printf("%2d) %s\n", i+1, e.Src)
-		fmt.Printf("        → %s\n", e.Dst)
+		fmt.Printf("        -> %s\n", e.Dst)
 	}
 
 	fmt.Println()
@@ -61,24 +62,23 @@ func main() {
 		os.Exit(1)
 	}
 
+	var adapterResultPtr *adapter.Result
 	if opts.Adapter != "" {
 		fmt.Println()
 		fmt.Println("Adapter:")
-		if _, err := adapter.Generate(opts.Adapter, opts.Out, adapter.Options{
+		adapterResult, err := adapter.Generate(opts.Adapter, opts.Out, adapter.Options{
 			DryRun: opts.DryRun,
 			Force:  opts.Force,
-		}); err != nil {
+		})
+		if err != nil {
 			fmt.Fprintf(os.Stderr, "error: %v\n", err)
 			os.Exit(1)
 		}
+		adapterResultPtr = &adapterResult
 	}
 
-	total := result.Generated + result.Copied + result.Skipped
-	if opts.DryRun {
-		fmt.Printf("Done (dry-run): %d total — %d would generate, %d would copy, %d would skip.\n", total, result.Generated, result.Copied, result.Skipped)
-	} else {
-		fmt.Printf("Done: %d total — %d generated, %d copied, %d skipped.\n", total, result.Generated, result.Copied, result.Skipped)
-	}
+	fmt.Println()
+	printDoneSummary(result, adapterResultPtr, opts.DryRun)
 	fmt.Println("------------")
 }
 
@@ -87,7 +87,7 @@ func presetNames(presets map[string]manifest.Preset) []string {
 	for name := range presets {
 		names = append(names, name)
 	}
-	// Intentionally not sorted: keep original map iteration order for now
+	sort.Strings(names)
 	return names
 }
 
@@ -104,4 +104,47 @@ func countAllFiles(sections []manifest.Section) int {
 	}
 	walk(sections)
 	return total
+}
+
+func printDoneSummary(renderResult render.Result, adapterResult *adapter.Result, dryRun bool) {
+	contextTotal := renderResult.Generated + renderResult.Copied + renderResult.Skipped
+
+	if dryRun {
+		fmt.Println("Done (dry-run):")
+		fmt.Printf("  Context: %d total - %d would generate, %d would copy, %d would skip.\n", contextTotal, renderResult.Generated, renderResult.Copied, renderResult.Skipped)
+		if adapterResult != nil {
+			generated, skipped := adapterCounts(*adapterResult, true)
+			fmt.Printf("  Adapter: %d would generate, %d would skip.\n", generated, skipped)
+		}
+		return
+	}
+
+	fmt.Println("Done:")
+	fmt.Printf("  Context: %d total - %d generated, %d copied, %d skipped.\n", contextTotal, renderResult.Generated, renderResult.Copied, renderResult.Skipped)
+	if adapterResult != nil {
+		generated, skipped := adapterCounts(*adapterResult, false)
+		fmt.Printf("  Adapter: %d generated, %d skipped.\n", generated, skipped)
+	}
+}
+
+func adapterCounts(result adapter.Result, dryRun bool) (generated, skipped int) {
+	if dryRun {
+		switch result.Action {
+		case adapter.ActionDryRunGenerate:
+			return 1, 0
+		case adapter.ActionDryRunSkip:
+			return 0, 1
+		default:
+			return 0, 0
+		}
+	}
+
+	switch result.Action {
+	case adapter.ActionGenerated:
+		return 1, 0
+	case adapter.ActionSkipped:
+		return 0, 1
+	default:
+		return 0, 0
+	}
 }
