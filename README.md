@@ -75,22 +75,22 @@ This keeps token usage efficient and responses focused.
 
 ```bash
 # Initialize with the standard preset (recommended)
-go run ./cmd/ctx-init/ -out /path/to/your/project
+go run ./cmd/ctx-init/ -project-root /path/to/your/project
 
 # Preview what would happen without writing anything
-go run ./cmd/ctx-init/ -out /path/to/your/project -dry-run
+go run ./cmd/ctx-init/ -project-root /path/to/your/project -dry-run
 
 # Use a different preset
-go run ./cmd/ctx-init/ -out /path/to/your/project -preset minimal
+go run ./cmd/ctx-init/ -project-root /path/to/your/project -preset minimal
 
 # Overwrite existing generated context files
-go run ./cmd/ctx-init/ -out /path/to/your/project -force
+go run ./cmd/ctx-init/ -project-root /path/to/your/project -force
 
 # Use a custom manifest file
-go run ./cmd/ctx-init/ -out /path/to/your/project -manifest path/to/manifest.yml
+go run ./cmd/ctx-init/ -project-root /path/to/your/project -manifest path/to/manifest.yml
 
 # Generate a specific tool adapter entrypoint (e.g.: Claude Code)
-go run ./cmd/ctx-init/ -out /path/to/your/project -adapter claude
+go run ./cmd/ctx-init/ -project-root /path/to/your/project -adapter claude
 ```
 
 When using a custom manifest file, any relative paths inside that manifest are resolved relative to the manifest file's location, not the current working directory.
@@ -99,7 +99,7 @@ When using a custom manifest file, any relative paths inside that manifest are r
 
 | Flag | Default | Description |
 |------|---------|-------------|
-| `-out` | *(required)* | Target project directory |
+| `-project-root` | *(required)* | Target project root directory |
 | `-preset` | `standard` | Context preset: `minimal`, `standard`, `full` |
 | `-dry-run` | `false` | Preview actions without writing any files |
 | `-force` | `false` | Overwrite existing generated files; for adapters, only replaces existing `*.ctx-init.md` fallback files |

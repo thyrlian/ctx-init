@@ -49,7 +49,7 @@ func parse() (Options, error) {
 	manifestPath := flag.String("manifest", defaultManifestPath, manifestHelp)
 	preset := flag.String("preset", DefaultPreset, presetHelp)
 	adapter := flag.String("adapter", DefaultAdapter, adapterHelp)
-	out := flag.String("out", "", "output root directory where .context/ will be created (required)")
+	projectRoot := flag.String("project-root", "", "target project root directory where .context/ and adapters will be created (required)")
 	dryRun := flag.Bool("dry-run", false, "preview actions without writing files (default: false)")
 	force := flag.Bool("force", false, "overwrite existing generated files; for adapters, this only replaces existing *.ctx-init.md fallback files (default: false)")
 
@@ -58,7 +58,7 @@ func parse() (Options, error) {
 	return Options{
 		ManifestPath: *manifestPath,
 		Preset:       *preset,
-		Out:          *out,
+		ProjectRoot:  *projectRoot,
 		Adapter:      *adapter,
 		DryRun:       *dryRun,
 		Force:        *force,
@@ -88,8 +88,8 @@ func validate(opts Options) error {
 		return err
 	}
 
-	if opts.Out == "" {
-		return fmt.Errorf("flag -out is required: specify the output root directory")
+	if opts.ProjectRoot == "" {
+		return fmt.Errorf("flag -project-root is required: specify the target project root directory")
 	}
 
 	return nil

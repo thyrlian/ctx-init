@@ -26,7 +26,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	p, err := plan.Build(m, opts.ManifestPath, opts.Preset, opts.Out, plan.Options{VerifySources: false})
+	p, err := plan.Build(m, opts.ManifestPath, opts.Preset, opts.ProjectRoot, plan.Options{VerifySources: false})
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error: %v\n", err)
 		os.Exit(1)
@@ -66,7 +66,7 @@ func main() {
 	if opts.Adapter != "" {
 		fmt.Println()
 		fmt.Println("Adapter:")
-		adapterResult, err := adapter.Generate(opts.Adapter, opts.Out, adapter.Options{
+		adapterResult, err := adapter.Generate(opts.Adapter, opts.ProjectRoot, adapter.Options{
 			DryRun: opts.DryRun,
 			Force:  opts.Force,
 		})
