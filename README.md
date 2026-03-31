@@ -2,7 +2,7 @@
 
 Bootstrap a tool-agnostic AI context system for your project.
 
-AI coding assistants are only as good as the context they have about your project.  `ctx-init` scaffolds a structured `.context/` directory in any project, giving AI agents a consistent, navigable source of truth they can load progressively on demand, not everything at once, regardless of which tool you use (OpenAI Codex, Claude Code, Google Antigravity, etc.).
+AI coding assistants are only as good as the context they have about your project.  `ctx-init` scaffolds a structured `.context/` directory in any project, giving AI agents a consistent, navigable source of truth they can load progressively on demand, not everything at once, regardless of which tool you use ([OpenAI Codex](https://openai.com/codex/), [Claude Code](https://claude.com/product/claude-code), [Google Antigravity](https://antigravity.google/), etc.).
 
 Beyond context management, the bundled templates also serve as a lightweight design blueprint, prompting you to think through every dimension of your project from the start: architecture, product, conventions, workflows, and more.
 
