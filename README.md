@@ -12,6 +12,14 @@ Beyond context management, the bundled templates also serve as a lightweight des
 
 `ctx-init` is a bootstrapper, not a daemon.  Run it once to scaffold the `.context/` directory and its context files in your project, everything after is yours.  No re-runs required, though following the conventions is expected.
 
+### Modular by Default
+
+Context should be broken into small, focused files instead of one monolithic document.  A modular structure makes the system easier to navigate, easier to evolve, and easier to adapt to different AI tools without rewriting the source of truth.  It also enables progressive loading, since agents can read only the files relevant to the task at hand.
+
+### Single Responsibility
+
+Each context file should do one job well.  Product files describe product facts, standards define engineering rules, architecture files explain structure and boundaries, and workflows capture execution patterns.  This separation keeps context clearer for both humans and AI agents.
+
 ### Convention + Configuration
 
 The system works through the following complementary mechanisms:
@@ -27,7 +35,7 @@ The system works through the following complementary mechanisms:
   ---
   ```
 
-Together they form a single source of truth that requires no external tooling to interpret.
+Together they form a modular, tool-agnostic source of truth that requires no external tooling to interpret.
 
 ### Gateway Files
 
