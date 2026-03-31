@@ -8,9 +8,11 @@ import (
 
 const (
 	codexTemplateName = "AGENTS.md"
-	codexPrimaryName  = "AGENTS.md"
-	codexFallbackName = "AGENTS.ctx-init.md"
 )
+
+var codexCandidates = []string{
+	"AGENTS.md",
+}
 
 func generateCodex(projectRoot string, opt Options) (Result, error) {
 	content, err := assetdata.ReadAdapter(codexTemplateName)
@@ -18,5 +20,5 @@ func generateCodex(projectRoot string, opt Options) (Result, error) {
 		return Result{}, fmt.Errorf("read Codex adapter template: %w", err)
 	}
 
-	return generateAdapterFile(projectRoot, content, codexPrimaryName, codexFallbackName, opt)
+	return generateAdapterFile(AdapterCodex, projectRoot, content, codexCandidates, opt)
 }

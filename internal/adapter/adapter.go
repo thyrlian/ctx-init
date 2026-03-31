@@ -15,6 +15,8 @@ const (
 
 type generator func(projectRoot string, opt Options) (Result, error)
 
+const aiProtocolPathPlaceholder = "{{AI_PROTOCOL_PATH}}"
+
 var supportedAdapters = []string{
 	AdapterClaude,
 	AdapterCodex,
@@ -100,16 +102,70 @@ func projectRelativePath(name string) (string, error) {
 	return clean, nil
 }
 
+func fallbackPathFor(primaryRel string) string {
+	ext := filepath.Ext(primaryRel)
+	if ext == "" {
+		return primaryRel + ".ctx-init"
+	}
+	base := strings.TrimSuffix(primaryRel, ext)
+	return base + ".ctx-init" + ext
+}
+
+func aiProtocolPathFor(targetRel string) string {
+	rel, err := filepath.Rel(filepath.Dir(targetRel), filepath.FromSlash(".context/ai_protocol.md"))
+	if err != nil {
+		return filepath.ToSlash(".context/ai_protocol.md")
+	}
+	return filepath.ToSlash(rel)
+}
+
+func renderAdapterTemplate(content []byte, primaryRel string) []byte {
+	return []byte(strings.ReplaceAll(string(content), aiProtocolPathPlaceholder, aiProtocolPathFor(primaryRel)))
+}
+
+func resolvePrimaryLocation(adapterName string, rootAbs string, candidates []string) (string, error) {
+	if len(candidates) == 0 {
+		return "", fmt.Errorf("%s adapter must define at least one candidate location", adapterName)
+	}
+
+	// Candidates are adapter-defined paths. Validate them up front so future
+	// adapter additions fail fast if they declare an invalid project-relative
+	// location.
+	validated := make([]string, 0, len(candidates))
+	for _, candidate := range candidates {
+		rel, err := projectRelativePath(candidate)
+		if err != nil {
+			return "", fmt.Errorf("invalid %s adapter candidate path %q: %w", adapterName, candidate, err)
+		}
+		validated = append(validated, rel)
+	}
+
+	for _, candidate := range validated {
+		exists, err := fileExists(filepath.Join(rootAbs, candidate))
+		if err != nil {
+			return "", fmt.Errorf("check %s adapter candidate %s: %w", adapterName, filepath.Join(rootAbs, candidate), err)
+		}
+		if exists {
+			// Prefer the first official location the user is already using. Only
+			// fall back to the first candidate when none of the known locations
+			// exist yet.
+			return candidate, nil
+		}
+	}
+
+	return validated[0], nil
+}
+
 func printAdapterNote(w io.Writer, action Action, primaryPath, targetPath string) {
 	fmt.Fprintf(w, "  note:\n")
 	fmt.Fprintf(w, "    existing:  %s\n", primaryPath)
 	switch action {
 	case ActionGenerated, ActionDryRunGenerate:
 		fmt.Fprintf(w, "    generated: %s\n", targetPath)
-		fmt.Fprintf(w, "    next:      append or merge the generated file into %s manually.\n", primaryPath)
+		fmt.Fprintf(w, "    next:      append or merge the generated file into your existing AI agent instructions file.\n")
 	case ActionSkipped, ActionDryRunSkip:
 		fmt.Fprintf(w, "    fallback:  %s\n", targetPath)
-		fmt.Fprintf(w, "    next:      reuse that fallback file or rerun with -force to replace it before merging into %s.\n", primaryPath)
+		fmt.Fprintf(w, "    next:      reuse that fallback file or rerun with -force to replace it before merging into your existing AI agent instructions file.\n")
 	default:
 		fmt.Fprintf(w, "    target:    %s\n", targetPath)
 	}
@@ -123,27 +179,29 @@ func printAdapterNote(w io.Writer, action Action, primaryPath, targetPath string
 //     fallback file; an existing primary file is never overwritten implicitly
 //   - print a user-facing note when manual merge is required
 //
-// This keeps the common "one adapter file plus fallback filename" flow in one
-// place so individual adapters only need to supply their content and names.
-// The provided names must be project-root-relative file paths.
+// This keeps the common adapter location, rendering, and fallback flow in one
+// place so individual adapters only need to supply their content and candidate
+// locations. Candidate paths must be project-root-relative file paths.
 //
 // Terminology:
-//   - primary: the preferred output filename for the adapter
+//   - primary: the selected output filename for the adapter after resolving the
+//     candidate location list
 //   - target: the actual file chosen for this run after conflict handling;
 //     it is either the primary file or the fallback file
-func generateAdapterFile(projectRoot string, content []byte, primaryName string, fallbackName string, opt Options) (Result, error) {
+func generateAdapterFile(adapterName string, projectRoot string, template []byte, candidates []string, opt Options) (Result, error) {
 	rootAbs, err := absProjectRoot(projectRoot)
 	if err != nil {
 		return Result{}, err
 	}
-	primaryRel, err := projectRelativePath(primaryName)
+	primaryRel, err := resolvePrimaryLocation(adapterName, rootAbs, candidates)
 	if err != nil {
-		return Result{}, fmt.Errorf("invalid primary path: %w", err)
+		return Result{}, err
 	}
-	fallbackRel, err := projectRelativePath(fallbackName)
-	if err != nil {
-		return Result{}, fmt.Errorf("invalid fallback path: %w", err)
-	}
+	fallbackRel := fallbackPathFor(primaryRel)
+	// Render once for the selected primary location. This is safe because the
+	// fallback file lives beside the primary file, so both share the same
+	// relative path to .context/ai_protocol.md.
+	content := renderAdapterTemplate(template, primaryRel)
 
 	out := writerOrStdout(opt.Writer)
 	primaryPath := filepath.Join(rootAbs, primaryRel)

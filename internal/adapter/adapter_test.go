@@ -66,7 +66,7 @@ func TestGenerateAdapterFileWritesPrimaryWhenMissing(t *testing.T) {
 	root := t.TempDir()
 	var out strings.Builder
 
-	res, err := generateAdapterFile(root, []byte("hello"), "PRIMARY.md", "PRIMARY.ctx-init.md", Options{Writer: &out})
+	res, err := generateAdapterFile("test", root, []byte("hello"), []string{"PRIMARY.md"}, Options{Writer: &out})
 	if err != nil {
 		t.Fatalf("generateAdapterFile returned error: %v", err)
 	}
@@ -89,7 +89,7 @@ func TestGenerateAdapterFileUsesFallbackWhenPrimaryExists(t *testing.T) {
 	writeAdapterFile(t, filepath.Join(root, "PRIMARY.md"), "existing-primary")
 	var out strings.Builder
 
-	res, err := generateAdapterFile(root, []byte("generated"), "PRIMARY.md", "PRIMARY.ctx-init.md", Options{Writer: &out})
+	res, err := generateAdapterFile("test", root, []byte("generated"), []string{"PRIMARY.md"}, Options{Writer: &out})
 	if err != nil {
 		t.Fatalf("generateAdapterFile returned error: %v", err)
 	}
@@ -114,7 +114,7 @@ func TestGenerateAdapterFileSkipsWhenTargetExistsWithoutForce(t *testing.T) {
 	writeAdapterFile(t, filepath.Join(root, "PRIMARY.ctx-init.md"), "existing-fallback")
 	var out strings.Builder
 
-	res, err := generateAdapterFile(root, []byte("generated"), "PRIMARY.md", "PRIMARY.ctx-init.md", Options{Writer: &out})
+	res, err := generateAdapterFile("test", root, []byte("generated"), []string{"PRIMARY.md"}, Options{Writer: &out})
 	if err != nil {
 		t.Fatalf("generateAdapterFile returned error: %v", err)
 	}
@@ -135,7 +135,7 @@ func TestGenerateAdapterFileOverwritesTargetWithForce(t *testing.T) {
 	writeAdapterFile(t, filepath.Join(root, "PRIMARY.md"), "existing-primary")
 	writeAdapterFile(t, filepath.Join(root, "PRIMARY.ctx-init.md"), "existing-fallback")
 
-	res, err := generateAdapterFile(root, []byte("forced"), "PRIMARY.md", "PRIMARY.ctx-init.md", Options{Force: true})
+	res, err := generateAdapterFile("test", root, []byte("forced"), []string{"PRIMARY.md"}, Options{Force: true})
 	if err != nil {
 		t.Fatalf("generateAdapterFile returned error: %v", err)
 	}
@@ -156,7 +156,7 @@ func TestGenerateAdapterFileDryRunDoesNotWritePrimary(t *testing.T) {
 	root := t.TempDir()
 	var out strings.Builder
 
-	res, err := generateAdapterFile(root, []byte("hello"), "PRIMARY.md", "PRIMARY.ctx-init.md", Options{
+	res, err := generateAdapterFile("test", root, []byte("hello"), []string{"PRIMARY.md"}, Options{
 		DryRun: true,
 		Writer: &out,
 	})
@@ -176,7 +176,7 @@ func TestGenerateAdapterFileDryRunUsesFallbackPathWhenPrimaryExists(t *testing.T
 	writeAdapterFile(t, filepath.Join(root, "PRIMARY.md"), "existing-primary")
 	var out strings.Builder
 
-	res, err := generateAdapterFile(root, []byte("hello"), "PRIMARY.md", "PRIMARY.ctx-init.md", Options{
+	res, err := generateAdapterFile("test", root, []byte("hello"), []string{"PRIMARY.md"}, Options{
 		DryRun: true,
 		Writer: &out,
 	})
@@ -197,7 +197,7 @@ func TestGenerateAdapterFileDryRunSkipsWhenFallbackExistsWithoutForce(t *testing
 	writeAdapterFile(t, filepath.Join(root, "PRIMARY.ctx-init.md"), "existing-fallback")
 	var out strings.Builder
 
-	res, err := generateAdapterFile(root, []byte("hello"), "PRIMARY.md", "PRIMARY.ctx-init.md", Options{
+	res, err := generateAdapterFile("test", root, []byte("hello"), []string{"PRIMARY.md"}, Options{
 		DryRun: true,
 		Writer: &out,
 	})
@@ -224,7 +224,7 @@ func TestGenerateAdapterFileDryRunWithForceUsesFallbackPath(t *testing.T) {
 	writeAdapterFile(t, filepath.Join(root, "PRIMARY.md"), "existing-primary")
 	var out strings.Builder
 
-	res, err := generateAdapterFile(root, []byte("hello"), "PRIMARY.md", "PRIMARY.ctx-init.md", Options{
+	res, err := generateAdapterFile("test", root, []byte("hello"), []string{"PRIMARY.md"}, Options{
 		DryRun: true,
 		Force:  true,
 		Writer: &out,
@@ -246,7 +246,7 @@ func TestGenerateAdapterFileDryRunWithForceUsesFallbackPath(t *testing.T) {
 func TestGenerateAdapterFileWithForceWritesPrimaryWhenPrimaryIsMissing(t *testing.T) {
 	root := t.TempDir()
 
-	res, err := generateAdapterFile(root, []byte("forced"), "PRIMARY.md", "PRIMARY.ctx-init.md", Options{Force: true})
+	res, err := generateAdapterFile("test", root, []byte("forced"), []string{"PRIMARY.md"}, Options{Force: true})
 	if err != nil {
 		t.Fatalf("generateAdapterFile returned error: %v", err)
 	}
@@ -262,7 +262,7 @@ func TestGenerateAdapterFileWithForceWritesPrimaryWhenPrimaryIsMissing(t *testin
 func TestGenerateAdapterFileCreatesParentDirectories(t *testing.T) {
 	root := t.TempDir()
 
-	res, err := generateAdapterFile(root, []byte("nested"), "adapters/PRIMARY.md", "adapters/PRIMARY.ctx-init.md", Options{})
+	res, err := generateAdapterFile("test", root, []byte("nested"), []string{"adapters/PRIMARY.md"}, Options{})
 	if err != nil {
 		t.Fatalf("generateAdapterFile returned error: %v", err)
 	}
@@ -277,13 +277,36 @@ func TestGenerateAdapterFileCreatesParentDirectories(t *testing.T) {
 func TestGenerateAdapterFileRejectsPathOutsideProjectRoot(t *testing.T) {
 	root := t.TempDir()
 
-	_, err := generateAdapterFile(root, []byte("bad"), "../PRIMARY.md", "PRIMARY.ctx-init.md", Options{})
+	_, err := generateAdapterFile("test", root, []byte("bad"), []string{"../PRIMARY.md"}, Options{})
 	if err == nil {
 		t.Fatal("generateAdapterFile expected error for path outside project root; got nil")
 	}
-	if !strings.Contains(err.Error(), "project root") {
-		t.Fatalf("error = %q; want project root validation message", err)
+	if !strings.Contains(err.Error(), "test adapter") {
+		t.Fatalf("error = %q; want adapter name in validation message", err)
 	}
+}
+
+func TestGenerateAdapterFileUsesFirstExistingCandidate(t *testing.T) {
+	root := t.TempDir()
+	writeAdapterFile(t, filepath.Join(root, "SECONDARY.md"), "existing-secondary")
+
+	res, err := generateAdapterFile("test", root, []byte("generated"), []string{"PRIMARY.md", "SECONDARY.md"}, Options{})
+	if err != nil {
+		t.Fatalf("generateAdapterFile returned error: %v", err)
+	}
+	if res.GeneratedPath != filepath.Join(root, "SECONDARY.ctx-init.md") {
+		t.Fatalf("GeneratedPath = %q; want fallback beside first existing candidate", res.GeneratedPath)
+	}
+}
+
+func TestGenerateAdapterFileRendersAIProtocolPlaceholder(t *testing.T) {
+	root := t.TempDir()
+
+	res, err := generateAdapterFile("test", root, []byte("Read {{AI_PROTOCOL_PATH}}"), []string{".claude/PRIMARY.md"}, Options{})
+	if err != nil {
+		t.Fatalf("generateAdapterFile returned error: %v", err)
+	}
+	assertFileContent(t, res.GeneratedPath, "Read ../.context/ai_protocol.md")
 }
 
 func writeAdapterFile(t *testing.T, path, content string) {

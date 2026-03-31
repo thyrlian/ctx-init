@@ -119,17 +119,26 @@ When using a custom manifest file, any relative paths inside that manifest are r
 Adapters generate tool-specific entrypoints that bridge a tool to the `.context/` system.
 
 Common behavior:
-- If the tool's primary entry file does not exist, `ctx-init` generates it in the project root.
-- If the primary file already exists, `ctx-init` generates a `*.ctx-init.md` fallback file instead and tells you to append or merge that content manually.
+- Each adapter checks only its official candidate locations within the project root.
+- If the selected primary file already exists, `ctx-init` generates a `*.ctx-init.md` fallback file instead and tells you to append or merge that content manually.
 - `-force` does not overwrite an existing primary tool file; it only allows `ctx-init` to replace an existing `*.ctx-init.md` fallback file.
+- The relative path to `.context/ai_protocol.md` inside the generated AI agent instructions file is adjusted automatically based on the final output location.
 
 ### Claude Code
 
-The `claude` adapter generates `CLAUDE.md`, which points Claude Code at `.context/ai_protocol.md`. Claude slash-command generation is intentionally left for a future adapter version.
+The `claude` adapter checks [`./.claude/CLAUDE.md`, `./CLAUDE.md`] and generates `./.claude/CLAUDE.md` if neither file exists.
+
+**TODO**: Claude slash-command generation is intentionally left for a future adapter version.
+
+[Official Reference](https://code.claude.com/docs/en/memory)
 
 ### OpenAI Codex
 
-The `codex` adapter generates `AGENTS.md`, which points OpenAI Codex at `.context/ai_protocol.md`. Scoped `AGENTS.md` generation for subdirectories is intentionally left for a future adapter version.
+The `codex` adapter checks [`./AGENTS.md`] and generates `./AGENTS.md` if it does not exist.
+
+**TODO**: Support scoped `AGENTS.md` generation for subdirectories in a future adapter version.
+
+[Official Reference](https://developers.openai.com/codex/guides/agents-md)
 
 ## Output Structure
 
