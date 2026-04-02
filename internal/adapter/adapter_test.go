@@ -9,8 +9,10 @@ import (
 
 func TestSupportedText(t *testing.T) {
 	got := SupportedText()
-	if !strings.Contains(got, AdapterClaude) || !strings.Contains(got, AdapterCodex) || !strings.Contains(got, AdapterGemini) {
-		t.Fatalf("SupportedText() = %q; want %q, %q, and %q", got, AdapterClaude, AdapterCodex, AdapterGemini)
+	for _, want := range []string{AdapterClaude, AdapterCodex, AdapterGemini, AdapterAll} {
+		if !strings.Contains(got, want) {
+			t.Fatalf("SupportedText() = %q; missing %q", got, want)
+		}
 	}
 	for _, part := range strings.Split(got, ", ") {
 		if strings.TrimSpace(part) == "" {
@@ -28,6 +30,7 @@ func TestValidate(t *testing.T) {
 		{name: AdapterClaude, wantErr: false},
 		{name: AdapterCodex, wantErr: false},
 		{name: AdapterGemini, wantErr: false},
+		{name: AdapterAll, wantErr: false},
 		{name: "CLAUDE", wantErr: true},
 		{name: "CODEX", wantErr: true},
 		{name: "GEMINI", wantErr: true},
@@ -309,6 +312,47 @@ func TestGenerateAdapterFileRendersAIProtocolPlaceholder(t *testing.T) {
 		t.Fatalf("generateAdapterFile returned error: %v", err)
 	}
 	assertFileContent(t, res.GeneratedPath, "Read ../.context/ai_protocol.md")
+}
+
+func TestGenerateAll(t *testing.T) {
+	root := t.TempDir()
+	var out strings.Builder
+
+	results, err := GenerateAll(root, Options{Writer: &out})
+	if err != nil {
+		t.Fatalf("GenerateAll returned error: %v", err)
+	}
+	if len(results) != len(supportedAdapters) {
+		t.Fatalf("GenerateAll returned %d results; want %d", len(results), len(supportedAdapters))
+	}
+	for _, res := range results {
+		if res.Skipped {
+			t.Errorf("result %+v: Skipped = true; want false", res)
+		}
+		if res.GeneratedPath == "" {
+			t.Errorf("result has empty GeneratedPath")
+		}
+		if !strings.Contains(out.String(), res.GeneratedPath) {
+			t.Errorf("output missing generated path %q", res.GeneratedPath)
+		}
+	}
+}
+
+func TestGenerateAllDryRunDoesNotWrite(t *testing.T) {
+	root := t.TempDir()
+
+	results, err := GenerateAll(root, Options{DryRun: true})
+	if err != nil {
+		t.Fatalf("GenerateAll returned error: %v", err)
+	}
+	if len(results) != len(supportedAdapters) {
+		t.Fatalf("GenerateAll returned %d results; want %d", len(results), len(supportedAdapters))
+	}
+	for _, res := range results {
+		if exists, _ := fileExists(res.GeneratedPath); exists {
+			t.Errorf("expected dry run not to create %s", res.GeneratedPath)
+		}
+	}
 }
 
 func writeAdapterFile(t *testing.T, path, content string) {

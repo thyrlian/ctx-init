@@ -3,7 +3,7 @@ package cli
 import "testing"
 
 func TestValidateAdapterValidValues(t *testing.T) {
-	for _, name := range []string{"", "claude", "codex", "gemini"} {
+	for _, name := range []string{"", "claude", "codex", "gemini", "all"} {
 		if err := validateAdapter(name); err != nil {
 			t.Errorf("validateAdapter(%q) returned unexpected error: %v", name, err)
 		}
@@ -11,7 +11,7 @@ func TestValidateAdapterValidValues(t *testing.T) {
 }
 
 func TestValidateAdapterInvalidValues(t *testing.T) {
-	for _, name := range []string{"CLAUDE", "CODEX", "GEMINI", " Claude ", "all"} {
+	for _, name := range []string{"CLAUDE", "CODEX", "GEMINI", " Claude "} {
 		if err := validateAdapter(name); err == nil {
 			t.Errorf("validateAdapter(%q) expected error; got nil", name)
 		}

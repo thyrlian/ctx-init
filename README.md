@@ -91,6 +91,9 @@ go run ./cmd/ctx-init/ -project-root /path/to/your/project -manifest path/to/man
 
 # Generate a specific tool adapter entrypoint (e.g.: Claude Code)
 go run ./cmd/ctx-init/ -project-root /path/to/your/project -adapter claude
+
+# Generate all adapter entrypoints at once
+go run ./cmd/ctx-init/ -project-root /path/to/your/project -adapter all
 ```
 
 When using a custom manifest file, any relative paths inside that manifest are resolved relative to the manifest file's location, not the current working directory.
@@ -104,7 +107,7 @@ When using a custom manifest file, any relative paths inside that manifest are r
 | `-dry-run` | `false` | Preview actions without writing any files |
 | `-force` | `false` | Overwrite existing generated files; for adapters, only replaces existing `*.ctx-init.md` fallback files |
 | `-manifest` | `assets/manifest.yml` | Path to the context manifest file |
-| `-adapter` | *(optional)* | Generate an adapter entrypoint, currently: `claude`, `codex`, `gemini` |
+| `-adapter` | *(optional)* | Generate an adapter entrypoint: `claude`, `codex`, `gemini`, or `all` |
 
 ## Presets
 

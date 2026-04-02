@@ -12,6 +12,7 @@ const (
 	AdapterClaude = "claude"
 	AdapterCodex  = "codex"
 	AdapterGemini = "gemini"
+	AdapterAll    = "all"
 )
 
 type generator func(projectRoot string, opt Options) (Result, error)
@@ -31,11 +32,11 @@ var generators = map[string]generator{
 }
 
 func SupportedText() string {
-	return strings.Join(supportedAdapters, ", ")
+	return strings.Join(supportedAdapters, ", ") + ", " + AdapterAll
 }
 
 func Validate(name string) error {
-	if name == "" {
+	if name == "" || name == AdapterAll {
 		return nil
 	}
 
@@ -59,6 +60,18 @@ func Generate(name, projectRoot string, opt Options) (Result, error) {
 	}
 
 	return generate(projectRoot, opt)
+}
+
+func GenerateAll(projectRoot string, opt Options) ([]Result, error) {
+	results := make([]Result, 0, len(supportedAdapters))
+	for _, name := range supportedAdapters {
+		result, err := Generate(name, projectRoot, opt)
+		if err != nil {
+			return nil, fmt.Errorf("%s adapter: %w", name, err)
+		}
+		results = append(results, result)
+	}
+	return results, nil
 }
 
 func writerOrStdout(w io.Writer) io.Writer {

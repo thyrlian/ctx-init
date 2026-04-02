@@ -62,23 +62,30 @@ func main() {
 		os.Exit(1)
 	}
 
-	var adapterResultPtr *adapter.Result
+	var adapterResults []adapter.Result
 	if opts.Adapter != "" {
 		fmt.Println()
 		fmt.Println("Adapter:")
-		adapterResult, err := adapter.Generate(opts.Adapter, opts.ProjectRoot, adapter.Options{
-			DryRun: opts.DryRun,
-			Force:  opts.Force,
-		})
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "error: %v\n", err)
-			os.Exit(1)
+		adapterOpts := adapter.Options{DryRun: opts.DryRun, Force: opts.Force}
+		if opts.Adapter == adapter.AdapterAll {
+			results, err := adapter.GenerateAll(opts.ProjectRoot, adapterOpts)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "error: %v\n", err)
+				os.Exit(1)
+			}
+			adapterResults = results
+		} else {
+			res, err := adapter.Generate(opts.Adapter, opts.ProjectRoot, adapterOpts)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "error: %v\n", err)
+				os.Exit(1)
+			}
+			adapterResults = []adapter.Result{res}
 		}
-		adapterResultPtr = &adapterResult
 	}
 
 	fmt.Println()
-	printDoneSummary(result, adapterResultPtr, opts.DryRun)
+	printDoneSummary(result, adapterResults, opts.DryRun)
 	fmt.Println("------------")
 }
 
@@ -106,14 +113,14 @@ func countAllFiles(sections []manifest.Section) int {
 	return total
 }
 
-func printDoneSummary(renderResult render.Result, adapterResult *adapter.Result, dryRun bool) {
+func printDoneSummary(renderResult render.Result, adapterResults []adapter.Result, dryRun bool) {
 	contextTotal := renderResult.Generated + renderResult.Copied + renderResult.Skipped
 
 	if dryRun {
 		fmt.Println("Done (dry-run):")
 		fmt.Printf("  Context: %d total - %d would generate, %d would copy, %d would skip.\n", contextTotal, renderResult.Generated, renderResult.Copied, renderResult.Skipped)
-		if adapterResult != nil {
-			generated, skipped := adapterCounts(*adapterResult, true)
+		if len(adapterResults) > 0 {
+			generated, skipped := adapterCounts(adapterResults, true)
 			fmt.Printf("  Adapter: %d would generate, %d would skip.\n", generated, skipped)
 		}
 		return
@@ -121,30 +128,29 @@ func printDoneSummary(renderResult render.Result, adapterResult *adapter.Result,
 
 	fmt.Println("Done:")
 	fmt.Printf("  Context: %d total - %d generated, %d copied, %d skipped.\n", contextTotal, renderResult.Generated, renderResult.Copied, renderResult.Skipped)
-	if adapterResult != nil {
-		generated, skipped := adapterCounts(*adapterResult, false)
+	if len(adapterResults) > 0 {
+		generated, skipped := adapterCounts(adapterResults, false)
 		fmt.Printf("  Adapter: %d generated, %d skipped.\n", generated, skipped)
 	}
 }
 
-func adapterCounts(result adapter.Result, dryRun bool) (generated, skipped int) {
-	if dryRun {
-		switch result.Action {
-		case adapter.ActionDryRunGenerate:
-			return 1, 0
-		case adapter.ActionDryRunSkip:
-			return 0, 1
-		default:
-			return 0, 0
+func adapterCounts(results []adapter.Result, dryRun bool) (generated, skipped int) {
+	for _, result := range results {
+		if dryRun {
+			switch result.Action {
+			case adapter.ActionDryRunGenerate:
+				generated++
+			case adapter.ActionDryRunSkip:
+				skipped++
+			}
+		} else {
+			switch result.Action {
+			case adapter.ActionGenerated:
+				generated++
+			case adapter.ActionSkipped:
+				skipped++
+			}
 		}
 	}
-
-	switch result.Action {
-	case adapter.ActionGenerated:
-		return 1, 0
-	case adapter.ActionSkipped:
-		return 0, 1
-	default:
-		return 0, 0
-	}
+	return
 }
