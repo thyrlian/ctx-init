@@ -114,7 +114,17 @@ func Run(p *plan.Plan, opt Options) (Result, error) {
 	if err != nil {
 		return res, err
 	}
-	res.record("_INDEX.md", indexAction, "")
+
+	indexCtxID := ""
+	if indexAction == ActionGenerated {
+		indexPath := filepath.Join(p.OutRootAbs, "_INDEX.md")
+		indexCtxID, err = appendCtxID(indexPath)
+		if err != nil {
+			return res, fmt.Errorf("append ctx-id to %s: %w", indexPath, err)
+		}
+		fmt.Fprintf(w, "  [%s] %s   ctx-id: %s\n", indexAction, indexPath, indexCtxID)
+	}
+	res.record("_INDEX.md", indexAction, indexCtxID)
 
 	return res, nil
 }
@@ -220,7 +230,6 @@ func generateIndex(p *plan.Plan, opt Options, w io.Writer) (Action, error) {
 		return ActionUnknown, fmt.Errorf("write _INDEX.md: %w", err)
 	}
 
-	fmt.Fprintf(w, "  [generated] %s\n", indexDst)
 	return ActionGenerated, nil
 }
 

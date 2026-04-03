@@ -285,8 +285,8 @@ func TestRun_copiesFilesAndGeneratesIndex(t *testing.T) {
 	}
 
 	// ctx-id should be recorded for .md files
-	if len(res.FileIDs) != 2 {
-		t.Errorf("FileIDs has %d entries; want 2: %v", len(res.FileIDs), res.FileIDs)
+	if len(res.FileIDs) != 3 {
+		t.Errorf("FileIDs has %d entries; want 3: %v", len(res.FileIDs), res.FileIDs)
 	}
 
 	// recorded ctx-id must match what was actually written into each file
@@ -311,6 +311,15 @@ func TestRun_copiesFilesAndGeneratesIndex(t *testing.T) {
 	indexPath := filepath.Join(outRoot, "_INDEX.md")
 	if _, err := os.Stat(indexPath); os.IsNotExist(err) {
 		t.Error("_INDEX.md was not generated")
+	}
+	if indexID := res.FileIDs["_INDEX.md"]; indexID == "" {
+		t.Fatalf("_INDEX.md ctx-id was not recorded: %v", res.FileIDs)
+	} else {
+		content := readFile(t, indexPath)
+		expected := "<!-- ctx-id: " + indexID + " -->"
+		if !strings.Contains(content, expected) {
+			t.Errorf("_INDEX.md missing ctx-id %q:\n%s", indexID, content)
+		}
 	}
 }
 
@@ -460,8 +469,14 @@ func TestRun_nonMarkdownFileCopiedWithoutCtxID(t *testing.T) {
 	if res.Copied != 1 {
 		t.Errorf("Copied = %d; want 1", res.Copied)
 	}
-	if len(res.FileIDs) != 0 {
-		t.Errorf("FileIDs = %v; want empty (non-.md file must not get ctx-id)", res.FileIDs)
+	if len(res.FileIDs) != 1 {
+		t.Errorf("FileIDs = %v; want only _INDEX.md to get a ctx-id", res.FileIDs)
+	}
+	if _, ok := res.FileIDs["_INDEX.md"]; !ok {
+		t.Errorf("FileIDs = %v; want _INDEX.md ctx-id to be recorded", res.FileIDs)
+	}
+	if _, ok := res.FileIDs["config.json"]; ok {
+		t.Errorf("FileIDs = %v; non-markdown file must not get ctx-id", res.FileIDs)
 	}
 	if !strings.Contains(buf.String(), "[copied]") {
 		t.Errorf("output missing [copied]:\n%s", buf.String())
