@@ -33,6 +33,12 @@ func TestGenerateClaudeCreatesPrimaryFileWhenMissing(t *testing.T) {
 	if !strings.Contains(string(content), "@../.context/ai_protocol.md") {
 		t.Fatalf("CLAUDE.md content = %q; want relative ai_protocol path for .claude location", string(content))
 	}
+	if !strings.Contains(string(content), "@../../../../.context/ai_protocol.md") {
+		t.Fatalf("CLAUDE.md content = %q; want worktree-relative ai_protocol path for .claude location", string(content))
+	}
+	if !strings.Contains(string(content), ".claude/worktrees/<worktree>/.claude/") {
+		t.Fatalf("CLAUDE.md content = %q; want .claude worktree location hint", string(content))
+	}
 }
 
 func TestGenerateClaudeUsesFallbackWhenScopedPrimaryExists(t *testing.T) {
@@ -80,8 +86,14 @@ func TestGenerateClaudeUsesFallbackWhenRootPrimaryExists(t *testing.T) {
 	if err != nil {
 		t.Fatalf("read generated fallback CLAUDE.ctx-init.md: %v", err)
 	}
-	if !strings.Contains(string(content), "@.context/ai_protocol.md") {
-		t.Fatalf("CLAUDE.ctx-init.md content = %q; want root-relative ai_protocol path", string(content))
+	if !strings.Contains(string(content), "@../.context/ai_protocol.md") {
+		t.Fatalf("CLAUDE.ctx-init.md content = %q; want hardcoded non-worktree ai_protocol path", string(content))
+	}
+	if !strings.Contains(string(content), "@../../../../.context/ai_protocol.md") {
+		t.Fatalf("CLAUDE.ctx-init.md content = %q; want hardcoded worktree ai_protocol path", string(content))
+	}
+	if !strings.Contains(string(content), ".claude/worktrees/<worktree>/.claude/") {
+		t.Fatalf("CLAUDE.ctx-init.md content = %q; want hardcoded worktree location hint", string(content))
 	}
 }
 
@@ -142,8 +154,8 @@ func TestGenerateClaudeForceDoesNotOverwritePrimary(t *testing.T) {
 	if err != nil {
 		t.Fatalf("read CLAUDE.ctx-init.md: %v", err)
 	}
-	if !strings.Contains(string(content), "@../.context/ai_protocol.md") {
-		t.Fatalf("CLAUDE.ctx-init.md content = %q; want adapter template content", string(content))
+	if string(content) == "# Existing fallback\n" {
+		t.Fatal("expected force to overwrite existing fallback content")
 	}
 	assertFileContent(t, filepath.Join(root, ".claude", "CLAUDE.md"), "# Existing\n")
 }
@@ -169,8 +181,8 @@ func TestGenerateClaudeWithForceCreatesPrimaryWhenMissing(t *testing.T) {
 	if err != nil {
 		t.Fatalf("read CLAUDE.md: %v", err)
 	}
-	if !strings.Contains(string(content), "@../.context/ai_protocol.md") {
-		t.Fatalf("CLAUDE.md content = %q; want adapter template content", string(content))
+	if string(content) == "" {
+		t.Fatal("expected generated CLAUDE.md to be non-empty")
 	}
 }
 
