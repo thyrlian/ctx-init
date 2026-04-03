@@ -69,7 +69,7 @@ This keeps token usage efficient and responses focused.
 1. A [`manifest.yml`](assets/manifest.yml) defines which context files to include and how to organize them
 2. `ctx-init` copies the files into `.context/` in your target project
 3. A [`_INDEX.md`](assets/context/_INDEX.md) is generated as an entry point for AI agents
-4. Each copied `.md` file receives a unique `ctx-id` token, as a proof-of-read that agents must include in responses to confirm they actually loaded the file
+4. Each copied or generated `.md` file receives a unique `ctx-id` token at the end of the file as a proof-of-read that agents must include in responses to confirm they actually loaded the file
 
 ## Quick Start
 
@@ -125,11 +125,14 @@ Common behavior:
 - Each adapter checks only its official candidate locations within the project root.
 - If the selected primary file already exists, `ctx-init` generates a `*.ctx-init.md` fallback file instead and tells you to append or merge that content manually.
 - `-force` does not overwrite an existing primary tool file; it only allows `ctx-init` to replace an existing `*.ctx-init.md` fallback file.
-- The relative path to `.context/ai_protocol.md` inside the generated AI agent instructions file is adjusted automatically based on the final output location.
+- Generated adapter templates include a small debug instruction asking the AI tool to print the absolute path of the adapter `.md` file it actually loaded.
+- Adapters point AI tools to `.context/ai_protocol.md` using location-appropriate relative paths.
 
 ### Claude Code
 
 The `claude` adapter checks [`./.claude/CLAUDE.md`, `./CLAUDE.md`] and generates [`./.claude/CLAUDE.md`](./assets/adapters/CLAUDE.md) if neither file exists.
+
+The generated template includes explicit rules for both direct project use and isolated worktree copies, so the tool can resolve `.context/ai_protocol.md` correctly in either mode.
 
 **TODO**: Claude slash-command generation is intentionally left for a future adapter version.
 
@@ -193,7 +196,7 @@ Tags signal load priority:
 
 ### `ctx-id` -> Proof of Read
 
-Every `.md` file gets a unique token appended on copy:
+Every copied or generated `.md` file gets a unique token appended:
 
 ```markdown
 <!-- ctx-id: a3f8c2d1e4b09f7e -->
