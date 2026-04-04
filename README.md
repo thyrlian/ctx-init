@@ -150,6 +150,8 @@ The `codex` adapter checks [`./AGENTS.md`] and generates [`./AGENTS.md`](./asset
 
 The `gemini` adapter checks [`./.agents/rules/GEMINI.md`] and generates [`./.agents/rules/GEMINI.md`](./assets/adapters/GEMINI.md) if it does not exist.
 
+If you use `-adapter codex` or `-adapter all`, `./AGENTS.md` will be generated in addition to `./.agents/rules/GEMINI.md`.  During agent execution, Antigravity will read both files.  This is fine: both files contain the same content and point to `.context/ai_protocol.md`.
+
 **TODO**: Support richer Antigravity rule activation and workflow generation in a future adapter version.
 
 [Official Reference](https://antigravity.google/docs/rules-workflows)
