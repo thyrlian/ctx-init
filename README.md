@@ -20,6 +20,14 @@ Context should be broken into small, focused files instead of one monolithic doc
 
 Each context file should do one job well.  Product files describe product facts, standards define engineering rules, architecture files explain structure and boundaries, and workflows capture execution patterns.  This separation keeps context clearer for both humans and AI agents.
 
+### Centralized with Routing
+
+AI ecosystems evolve constantly.  New markdown conventions, capability files, and vendor-specific specs appear all the time, whether that looks like `SKILL.md` today or something else tomorrow.  A common response is to keep introducing new top-level categories or reshaping the directory tree around each new concept (such as commands, rules, and skills).  That may feel organized at first, but it makes the structure vendor-driven, harder to maintain, and more cognitively expensive as conventions accumulate.
+
+Instead, this system takes a different approach: keep everything **centralized** under `.context/`, and rely on `ai_protocol.md` as the **master router**.  The protocol tells agents how to navigate, what to load first, and what to pull in on demand for a specific task.  The structure stays stable even as new tools, conventions, or AI vendors emerge.
+
+Functions can still be separated logically through files, tags, and gateway mechanisms, but the filesystem itself does not need to be redesigned every time the ecosystem changes.  That keeps the source of truth durable, feature-independent, and compatible with multiple AI tools at the same time.
+
 ### Convention + Configuration
 
 The system works through the following complementary mechanisms:
