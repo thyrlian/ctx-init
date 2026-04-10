@@ -6,8 +6,8 @@ This project uses `.context/` as the source of truth for AI-readable project con
 Before continuing, print the absolute path of this CLAUDE.md file.
 
 Resolve and load the context entrypoint relative to the CLAUDE.md file you actually loaded:
-- If the loaded CLAUDE.md is under `.claude/worktrees/<worktree>/.claude/` (meaning Claude's worktree option is enabled), load @../../../../.context/ai_protocol.md
-- Otherwise, load @../.context/ai_protocol.md
+- If the loaded CLAUDE.md is under `.claude/worktrees/<worktree>/.claude/` (meaning Claude's worktree option is enabled), load @../../../{{AI_PROTOCOL_PATH}}
+- Otherwise, load @{{AI_PROTOCOL_PATH}}
 
 Do not guess a different path before trying the rule above.  Print the resolved path before loading.
 

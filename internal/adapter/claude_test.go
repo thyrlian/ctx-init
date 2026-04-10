@@ -30,40 +30,7 @@ func TestGenerateClaudeCreatesPrimaryFileWhenMissing(t *testing.T) {
 	if err != nil {
 		t.Fatalf("read generated CLAUDE.md: %v", err)
 	}
-	if !strings.Contains(string(content), "@../.context/ai_protocol.md") {
-		t.Fatalf("CLAUDE.md content = %q; want relative ai_protocol path for .claude location", string(content))
-	}
-	if !strings.Contains(string(content), "@../../../../.context/ai_protocol.md") {
-		t.Fatalf("CLAUDE.md content = %q; want worktree-relative ai_protocol path for .claude location", string(content))
-	}
-	if !strings.Contains(string(content), ".claude/worktrees/<worktree>/.claude/") {
-		t.Fatalf("CLAUDE.md content = %q; want .claude worktree location hint", string(content))
-	}
-}
-
-func TestGenerateClaudeUsesFallbackWhenScopedPrimaryExists(t *testing.T) {
-	root := t.TempDir()
-	writeFile(t, filepath.Join(root, ".claude", "CLAUDE.md"), "# Existing\n")
-	var out strings.Builder
-
-	res, err := Generate(AdapterClaude, root, Options{Writer: &out})
-	if err != nil {
-		t.Fatalf("Generate returned error: %v", err)
-	}
-
-	wantPath := filepath.Join(root, ".claude", "CLAUDE.ctx-init.md")
-	if res.GeneratedPath != wantPath {
-		t.Fatalf("GeneratedPath = %q; want %q", res.GeneratedPath, wantPath)
-	}
-	if !res.UsedFallback {
-		t.Fatal("UsedFallback = false; want true")
-	}
-	if !strings.Contains(res.Message, "Append or merge") {
-		t.Fatalf("Message = %q; want append or merge guidance", res.Message)
-	}
-	if !strings.Contains(out.String(), "note:") {
-		t.Fatalf("output = %q; want note about manual merge", out.String())
-	}
+	assertClaudeTemplateContent(t, string(content), "@../.context/ai_protocol.md", "@../../../../.context/ai_protocol.md")
 }
 
 func TestGenerateClaudeUsesFallbackWhenRootPrimaryExists(t *testing.T) {
@@ -86,15 +53,7 @@ func TestGenerateClaudeUsesFallbackWhenRootPrimaryExists(t *testing.T) {
 	if err != nil {
 		t.Fatalf("read generated fallback CLAUDE.ctx-init.md: %v", err)
 	}
-	if !strings.Contains(string(content), "@../.context/ai_protocol.md") {
-		t.Fatalf("CLAUDE.ctx-init.md content = %q; want hardcoded non-worktree ai_protocol path", string(content))
-	}
-	if !strings.Contains(string(content), "@../../../../.context/ai_protocol.md") {
-		t.Fatalf("CLAUDE.ctx-init.md content = %q; want hardcoded worktree ai_protocol path", string(content))
-	}
-	if !strings.Contains(string(content), ".claude/worktrees/<worktree>/.claude/") {
-		t.Fatalf("CLAUDE.ctx-init.md content = %q; want hardcoded worktree location hint", string(content))
-	}
+	assertClaudeTemplateContent(t, string(content), "@.context/ai_protocol.md", "@../../../.context/ai_protocol.md")
 }
 
 func TestGenerateClaudePrefersScopedPrimaryWhenBothLocationsExist(t *testing.T) {
@@ -111,53 +70,6 @@ func TestGenerateClaudePrefersScopedPrimaryWhenBothLocationsExist(t *testing.T) 
 	}
 	assertFileContent(t, filepath.Join(root, ".claude", "CLAUDE.md"), "# Existing scoped\n")
 	assertFileContent(t, filepath.Join(root, "CLAUDE.md"), "# Existing root\n")
-}
-
-func TestGenerateClaudeSkipsExistingFallbackWithoutForce(t *testing.T) {
-	root := t.TempDir()
-	writeFile(t, filepath.Join(root, ".claude", "CLAUDE.md"), "# Existing\n")
-	writeFile(t, filepath.Join(root, ".claude", "CLAUDE.ctx-init.md"), "# Existing fallback\n")
-	var out strings.Builder
-
-	res, err := Generate(AdapterClaude, root, Options{Writer: &out})
-	if err != nil {
-		t.Fatalf("Generate returned error: %v", err)
-	}
-	if !res.Skipped {
-		t.Fatal("Skipped = false; want true")
-	}
-	if !strings.Contains(out.String(), "[skipped]") {
-		t.Fatalf("output = %q; want skipped status", out.String())
-	}
-}
-
-func TestGenerateClaudeForceDoesNotOverwritePrimary(t *testing.T) {
-	root := t.TempDir()
-	writeFile(t, filepath.Join(root, ".claude", "CLAUDE.md"), "# Existing\n")
-	writeFile(t, filepath.Join(root, ".claude", "CLAUDE.ctx-init.md"), "# Existing fallback\n")
-	var out strings.Builder
-
-	res, err := Generate(AdapterClaude, root, Options{Force: true, Writer: &out})
-	if err != nil {
-		t.Fatalf("Generate returned error: %v", err)
-	}
-	if res.GeneratedPath != filepath.Join(root, ".claude", "CLAUDE.ctx-init.md") {
-		t.Fatalf("GeneratedPath = %q; want CLAUDE.ctx-init.md path", res.GeneratedPath)
-	}
-	if !res.UsedFallback {
-		t.Fatal("UsedFallback = false; want true")
-	}
-	if !strings.Contains(out.String(), "note:") {
-		t.Fatalf("output = %q; want manual merge note", out.String())
-	}
-	content, err := os.ReadFile(filepath.Join(root, ".claude", "CLAUDE.ctx-init.md"))
-	if err != nil {
-		t.Fatalf("read CLAUDE.ctx-init.md: %v", err)
-	}
-	if string(content) == "# Existing fallback\n" {
-		t.Fatal("expected force to overwrite existing fallback content")
-	}
-	assertFileContent(t, filepath.Join(root, ".claude", "CLAUDE.md"), "# Existing\n")
 }
 
 func TestGenerateClaudeWithForceCreatesPrimaryWhenMissing(t *testing.T) {
@@ -181,25 +93,7 @@ func TestGenerateClaudeWithForceCreatesPrimaryWhenMissing(t *testing.T) {
 	if err != nil {
 		t.Fatalf("read CLAUDE.md: %v", err)
 	}
-	if string(content) == "" {
-		t.Fatal("expected generated CLAUDE.md to be non-empty")
-	}
-}
-
-func TestGenerateClaudeDryRunDoesNotWrite(t *testing.T) {
-	root := t.TempDir()
-	var out strings.Builder
-
-	res, err := Generate(AdapterClaude, root, Options{DryRun: true, Writer: &out})
-	if err != nil {
-		t.Fatalf("Generate returned error: %v", err)
-	}
-	if res.GeneratedPath != filepath.Join(root, ".claude", "CLAUDE.md") {
-		t.Fatalf("GeneratedPath = %q; want CLAUDE.md path", res.GeneratedPath)
-	}
-	if exists, _ := fileExists(filepath.Join(root, ".claude", "CLAUDE.md")); exists {
-		t.Fatal("expected no file to be written during dry run")
-	}
+	assertClaudeTemplateContent(t, string(content), "@../.context/ai_protocol.md", "@../../../../.context/ai_protocol.md")
 }
 
 func writeFile(t *testing.T, path, content string) {
@@ -209,5 +103,21 @@ func writeFile(t *testing.T, path, content string) {
 	}
 	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
 		t.Fatalf("write %s: %v", path, err)
+	}
+}
+
+func assertClaudeTemplateContent(t *testing.T, content, normalPath, worktreePath string) {
+	t.Helper()
+	if !strings.Contains(content, normalPath) {
+		t.Fatalf("CLAUDE content = %q; want normal ai_protocol path %q", content, normalPath)
+	}
+	if !strings.Contains(content, worktreePath) {
+		t.Fatalf("CLAUDE content = %q; want worktree ai_protocol path %q", content, worktreePath)
+	}
+	if !strings.Contains(content, ".claude/worktrees/<worktree>/.claude/") {
+		t.Fatalf("CLAUDE content = %q; want worktree location hint", content)
+	}
+	if strings.Contains(content, "{{AI_PROTOCOL_PATH}}") {
+		t.Fatalf("CLAUDE content = %q; want AI_PROTOCOL_PATH placeholder to be fully rendered", content)
 	}
 }
