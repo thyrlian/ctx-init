@@ -27,6 +27,8 @@ as a Markdown comment: `<!-- ctx-id: <16-hex-char token> -->`
    `CTX-READ: <relative-path> = <ctx-id>`
 3. If you cannot find the `ctx-id` in a file, use `NOT_FOUND` as the value.
 4. **Never fabricate a `ctx-id`.** If you did not read the file, do not claim you did.
+5. **Never store or cache a `ctx-id`**. **Never reuse one from memory**, prior sessions, previous responses, or cached context.
+   Only declare a `ctx-id` after freshly reading the corresponding file in the current task.
 
 ---
 
