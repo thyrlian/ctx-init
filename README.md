@@ -229,6 +229,8 @@ A Docker-based script is provided for CI and local container runs:
 ./scripts/ci.sh test
 ```
 
+![Driven by Human, Augmented by AI](https://raw.githubusercontent.com/thyrlian/ai-augmented-signature/main/assets/badge-small.png)
+
 ## License
 
 Copyright © 2026 [Jing Li](https://github.com/thyrlian)
